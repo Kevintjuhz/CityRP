@@ -2,13 +2,9 @@ package nl.kqcreations.cityrp.command.city;
 
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldguard.WorldGuard;
-import com.sk89q.worldguard.protection.flags.Flags;
-import com.sk89q.worldguard.protection.flags.StateFlag;
-import com.sk89q.worldguard.protection.flags.registry.FlagRegistry;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import com.sk89q.worldguard.protection.regions.RegionContainer;
-import nl.kqcreations.cityrp.CityRPPlugin;
 import nl.kqcreations.cityrp.city.CityCache;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -54,10 +50,6 @@ public class AddCityCommand extends SimpleSubCommand {
 			return;
 		}
 
-		FlagRegistry registry = WorldGuard.getInstance().getFlagRegistry();
-
-//		region.getFlag(Flags.fuzzyMatchFlag(registry, CityRPPlugin.CITY_FLAG.getName())).equals(true))
-		region.setFlag(Flags.fuzzyMatchFlag(registry, CityRPPlugin.CITY_FLAG.getName()), StateFlag.State.ALLOW);
 		CityCache.addCity(worldName, cityName, regionName);
 		tell("&bSuccessfully added the " + cityName.toUpperCase());
 	}

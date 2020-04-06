@@ -2,13 +2,10 @@ package nl.kqcreations.cityrp.task;
 
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldguard.WorldGuard;
-import com.sk89q.worldguard.protection.flags.Flags;
-import com.sk89q.worldguard.protection.flags.registry.FlagRegistry;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import com.sk89q.worldguard.protection.regions.RegionContainer;
 import com.sk89q.worldguard.protection.regions.RegionQuery;
-import nl.kqcreations.cityrp.CityRPPlugin;
 import nl.kqcreations.cityrp.city.CityCache;
 import nl.kqcreations.cityrp.city.PlayerCity;
 import org.bukkit.Location;
@@ -22,38 +19,38 @@ import java.util.UUID;
 
 public class CityChangeTask extends BukkitRunnable {
 
-	private RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
-
 	@Override
 	public void run() {
+
+		RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
+
 		PlayerInteractEvent event;
 		for (Player player : Remain.getOnlinePlayers()) {
-			UUID uuid = player.getUniqueId();
-			World world = player.getWorld();
-			Location location = player.getLocation();
-			RegionManager regions = container.get(BukkitAdapter.adapt(world));
+			final UUID uuid = player.getUniqueId();
+			final World world = player.getWorld();
+			final Location location = player.getLocation();
 
-			RegionQuery query = container.createQuery();
-			boolean hasChanged = false;
+			final RegionManager regions = container.get(BukkitAdapter.adapt(world));
+			final RegionQuery query = container.createQuery();
 
-			PlayerCity playerCity = PlayerCity.getInstance();
-			CityCache.City city = playerCity.getPlayerCity(player.getUniqueId());
-			FlagRegistry registry = WorldGuard.getInstance().getFlagRegistry();
+			final PlayerCity playerCity = PlayerCity.getInstance();
+			final CityCache.City city = playerCity.getPlayerCity(player.getUniqueId());
 
 			if (query.getApplicableRegions(BukkitAdapter.adapt(location)).size() == 0) {
 				if (!city.getWgRegion().equals("__global__")) {
-					hasChanged = true;
-					playerCity.setPlayerCity(uuid, CityCache.getCityByRegion(world.getName(), "__global__"));
-					playerCity.sendPlayerCityTitle(player, city);
+					CityCache.City city2 = CityCache.getCityByRegion(world.getName(), "__global__");
+					playerCity.setPlayerCity(uuid, city2);
+					playerCity.sendPlayerCityTitle(player, city2);
 				}
 			} else {
 				for (ProtectedRegion region : query.getApplicableRegions(BukkitAdapter.adapt(location))) {
-					if (region.getFlag(Flags.fuzzyMatchFlag(registry, CityRPPlugin.CITY_FLAG.getName())).equals(true)) {
-						if (!city.getWgRegion().equals(region.getId())) {
-							hasChanged = true;
-							playerCity.setPlayerCity(uuid, CityCache.getCityByRegion(world.getName(), region.getId()));
-							playerCity.sendPlayerCityTitle(player, city);
-						}
+
+					CityCache.City city2 = CityCache.getCityByRegion(world.getName(), region.getId());
+
+					if (!city.getWgRegion().equals(region.getId()) && city2 != null) {
+
+						playerCity.setPlayerCity(uuid, city2);
+						playerCity.sendPlayerCityTitle(player, city2);
 					}
 				}
 			}

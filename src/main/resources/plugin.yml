@@ -3,3 +3,5 @@ version: ${project.version}
 main: ${main.class}
 author: Kevintjuhz
 api-version: 1.13
+load: STARTUP
+softdepend: [WorldGuard]

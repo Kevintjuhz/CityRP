@@ -13,7 +13,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.mineacademy.fo.Common;
-import org.mineacademy.fo.model.HookManager;
 import org.mineacademy.fo.plugin.SimplePlugin;
 
 public class CityRPPlugin extends SimplePlugin {
@@ -27,11 +26,16 @@ public class CityRPPlugin extends SimplePlugin {
 	@Override
 	protected void onPluginStart() {
 
-		if (!HookManager.isWorldGuardLoaded()) {
-			Common.logFramed("&cCityRP could not be loaded, Please make sure you have WorldGuard installed");
-			Bukkit.getPluginManager().disablePlugin(this);
-			return;
-		}
+
+		CITY_FLAG = AddWorldGuardFlag("city-flag");
+		PLOT_FLAG = AddWorldGuardFlag("plot-flag");
+
+//		if (!HookManager.isWorldGuardLoaded()) {
+//			Common.logFramed("&cCityRP could not be loaded, Please make sure you have WorldGuard installed");
+//			Bukkit.getPluginManager().disablePlugin(this);
+//			return;
+//		}
+
 
 		cityChangeTask = new CityChangeTask();
 		cityChangeTask.runTaskTimer(this, 0, 2 * 20);
@@ -44,10 +48,6 @@ public class CityRPPlugin extends SimplePlugin {
 		registerCommands("city", new CityCommandGroup());
 
 		registerEvents(new PlayerListener());
-
-		FlagRegistry registry = WorldGuard.getInstance().getFlagRegistry();
-		CITY_FLAG = AddWorldGuardFlag(registry, "city-flag");
-		PLOT_FLAG = AddWorldGuardFlag(registry, "plot-flag");
 	}
 
 	@Override
@@ -78,11 +78,12 @@ public class CityRPPlugin extends SimplePlugin {
 	/**
 	 * Adds a worldguard flag to worldguard, can only be called from main plugin class
 	 *
-	 * @param registry
 	 * @param flagName
 	 * @return
 	 */
-	private StateFlag AddWorldGuardFlag(FlagRegistry registry, String flagName) {
+	private StateFlag AddWorldGuardFlag(String flagName) {
+		FlagRegistry registry = WorldGuard.getInstance().getFlagRegistry();
+
 		try {
 			// create a flag with the name "my-custom-flag", defaulting to true
 			StateFlag flag = new StateFlag(flagName, false);

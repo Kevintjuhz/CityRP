@@ -107,12 +107,12 @@ public final class CityCache extends YamlSectionConfig {
 			cacheMap.put(world, cache);
 		}
 
-		boolean notContainsCity = cache.getCities().stream().noneMatch((city) -> city.getWgRegion().equals(wg_region) || city.getName().equals(name));
+//		boolean notContainsCity = cache.getCities().stream().noneMatch((city) -> city.getWgRegion().equals(wg_region) || city.getName().equals(name));
 
-		if (notContainsCity) {
-			cache.cities.add(new City(name, wg_region, color));
-			cache.save("Cities", cache.cities);
-		}
+//		if (notContainsCity) {
+		cache.cities.add(new City(name, wg_region, color));
+		cache.save("Cities", cache.cities);
+//		}
 	}
 
 	/**
