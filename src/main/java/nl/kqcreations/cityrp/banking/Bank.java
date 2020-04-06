@@ -4,7 +4,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface Bank {
-
     String getName();
 
     Currency getPrimaryCurrency();
@@ -13,7 +12,7 @@ public interface Bank {
 
     double getConversionRateFor(Currency currency) throws IllegalArgumentException;
 
-    double convertToPrimary(double sum, Currency original);
+    double convertToPrimary(double sum, Currency original) throws IllegalArgumentException;
 
     Optional<BankAccount> getAccountById(int Id);
 

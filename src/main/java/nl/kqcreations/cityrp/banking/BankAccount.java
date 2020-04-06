@@ -59,6 +59,11 @@ public interface BankAccount extends ConfigurationSerializable {
     }
     */
 
+    boolean isFrozen();
+
+    void setFrozen(boolean frozen);
+
+
     AccessLevel getAccessOf(UUID player);
 
     void setAccessOf(UUID player, AccessLevel newLevel);

@@ -12,6 +12,7 @@ public abstract class AbstractBankAccount implements BankAccount {
     private Bank bank;
     private UUID opener;
     private double balance;
+    private boolean frozen = false;
     private Map<UUID, AccessLevel> accessLevelMap = new HashMap<>();
 
     public AbstractBankAccount(Bank bank, UUID opener) {
@@ -32,6 +33,16 @@ public abstract class AbstractBankAccount implements BankAccount {
     }
 
     @Override
+    public boolean isFrozen() {
+        return frozen;
+    }
+
+    @Override
+    public void setFrozen(boolean frozen) {
+        this.frozen = frozen;
+    }
+
+    @Override
     public UUID getOpener() {
         return opener;
     }
@@ -48,6 +59,9 @@ public abstract class AbstractBankAccount implements BankAccount {
 
     @Override
     public boolean deposit(double targetSum) {
+        if (isFrozen()) {
+            return false;
+        }
         if (targetSum < 0) {
             return withdraw(-targetSum);
         }
@@ -57,6 +71,9 @@ public abstract class AbstractBankAccount implements BankAccount {
 
     @Override
     public boolean withdraw(double targetSum) {
+        if (isFrozen()) {
+            return false;
+        }
         if (targetSum < 0) {
             return deposit(-targetSum);
         }
