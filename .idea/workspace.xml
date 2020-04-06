@@ -5,16 +5,22 @@
       <change afterPath="$PROJECT_DIR$/src/main/java/nl/kqcreations/cityrp/api/API.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
 <<<<<<< HEAD
+<<<<<<< HEAD
       <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/nl/kqcreations/cityrp/banking/AbstractBankAccount.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/nl/kqcreations/cityrp/banking/AbstractBankAccount.java" afterDir="false" />
 =======
+=======
+>>>>>>> 7ebe7479c88d5e6ad111d50cf5af6fd79c8290fa
       <change beforePath="$PROJECT_DIR$/src/main/java/nl/kqcreations/cityrp/banking/AbstractBankAccount.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/nl/kqcreations/cityrp/api/banking/AbstractBankAccount.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/nl/kqcreations/cityrp/banking/Bank.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/nl/kqcreations/cityrp/api/banking/Bank.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/nl/kqcreations/cityrp/banking/BankAccount.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/nl/kqcreations/cityrp/api/banking/BankAccount.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/nl/kqcreations/cityrp/banking/Banks.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/nl/kqcreations/cityrp/banking/Banks.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/nl/kqcreations/cityrp/banking/Currencies.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/nl/kqcreations/cityrp/banking/Currencies.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/nl/kqcreations/cityrp/banking/Currency.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/nl/kqcreations/cityrp/api/banking/Currency.java" afterDir="false" />
+<<<<<<< HEAD
 >>>>>>> 469f0a3... Initial work on serialisation - BankDatabase
+=======
+>>>>>>> 7ebe7479c88d5e6ad111d50cf5af6fd79c8290fa
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -40,6 +46,119 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
   </component>
+  <component name="RunManager">
+    <configuration default="true" type="JetRunConfigurationType" factoryName="Kotlin">
+      <module name="CityRP" />
+      <option name="VM_PARAMETERS" />
+      <option name="PROGRAM_PARAMETERS" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="WORKING_DIRECTORY" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType" factoryName="Kotlin script">
+      <module name="CityRP" />
+      <option name="filePath" />
+      <option name="vmParameters" />
+      <option name="alternativeJrePath" />
+      <option name="programParameters" />
+      <option name="passParentEnvs" value="true" />
+      <option name="workingDirectory" />
+      <option name="isAlternativeJrePathEnabled" value="false" />
+      <option name="VM_PARAMETERS" />
+      <option name="PROGRAM_PARAMETERS" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="WORKING_DIRECTORY" />
+      <option name="filePath" />
+      <option name="vmParameters" />
+      <option name="alternativeJrePath" />
+      <option name="programParameters" />
+      <option name="passParentEnvs" value="true" />
+      <option name="workingDirectory" />
+      <option name="isAlternativeJrePathEnabled" value="false" />
+      <option name="VM_PARAMETERS" />
+      <option name="PROGRAM_PARAMETERS" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="WORKING_DIRECTORY" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="PythonConfigurationType" factoryName="Python">
+      <module name="CityRP" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="Tox" factoryName="Tox">
+      <module name="CityRP" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="tests" factoryName="Doctests">
+      <module name="CityRP" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="CLASS_NAME" value="" />
+      <option name="METHOD_NAME" value="" />
+      <option name="FOLDER_NAME" value="" />
+      <option name="TEST_TYPE" value="TEST_SCRIPT" />
+      <option name="PATTERN" value="" />
+      <option name="USE_PATTERN" value="false" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="tests" factoryName="Unittests">
+      <module name="CityRP" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method v="2" />
+    </configuration>
+  </component>
   <component name="SvnConfiguration">
     <configuration />
   </component>
@@ -55,11 +174,14 @@
   </component>
   <component name="WindowStateProjectService">
 <<<<<<< HEAD
+<<<<<<< HEAD
     <state x="765" y="223" key="#com.intellij.ide.util.MemberChooser" timestamp="1586212324207">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="765" y="223" key="#com.intellij.ide.util.MemberChooser/0.0.1920.1040@0.0.1920.1040" timestamp="1586212324207" />
 =======
+=======
+>>>>>>> 7ebe7479c88d5e6ad111d50cf5af6fd79c8290fa
     <state x="765" y="223" key="#com.intellij.ide.util.MemberChooser" timestamp="1586195836358">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
