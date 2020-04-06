@@ -26,6 +26,13 @@ public abstract class AbstractBankAccount implements BankAccount {
         setBalance(initialBalance);
     }
 
+    /**
+     * Force sets the balance for this Account's balance.
+     * This method does not care about whether
+     * the account is frozen.
+     *
+     * @param balance The non-negative balance.
+     */
     public void setBalance(double balance) {
         if (balance < 0) {
             throw new IllegalArgumentException("Invalid Balance, cannot be negative!");
