@@ -2,14 +2,31 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="df823890-8982-421a-a0e6-8f4eb6d78b7c" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/src/main/java/nl/kqcreations/cityrp/api/API.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+<<<<<<< HEAD
       <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/nl/kqcreations/cityrp/banking/AbstractBankAccount.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/nl/kqcreations/cityrp/banking/AbstractBankAccount.java" afterDir="false" />
+=======
+      <change beforePath="$PROJECT_DIR$/src/main/java/nl/kqcreations/cityrp/banking/AbstractBankAccount.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/nl/kqcreations/cityrp/api/banking/AbstractBankAccount.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/nl/kqcreations/cityrp/banking/Bank.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/nl/kqcreations/cityrp/api/banking/Bank.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/nl/kqcreations/cityrp/banking/BankAccount.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/nl/kqcreations/cityrp/api/banking/BankAccount.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/nl/kqcreations/cityrp/banking/Banks.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/nl/kqcreations/cityrp/banking/Banks.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/nl/kqcreations/cityrp/banking/Currencies.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/nl/kqcreations/cityrp/banking/Currencies.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/nl/kqcreations/cityrp/banking/Currency.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/nl/kqcreations/cityrp/api/banking/Currency.java" afterDir="false" />
+>>>>>>> 469f0a3... Initial work on serialisation - BankDatabase
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -37,10 +54,18 @@
     <servers />
   </component>
   <component name="WindowStateProjectService">
+<<<<<<< HEAD
     <state x="765" y="223" key="#com.intellij.ide.util.MemberChooser" timestamp="1586212324207">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="765" y="223" key="#com.intellij.ide.util.MemberChooser/0.0.1920.1040@0.0.1920.1040" timestamp="1586212324207" />
+=======
+    <state x="765" y="223" key="#com.intellij.ide.util.MemberChooser" timestamp="1586195836358">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+<<<<<<< Updated upstream
+    <state x="765" y="223" key="#com.intellij.ide.util.MemberChooser/0.0.1920.1040@0.0.1920.1040" timestamp="1586191804631" />
+>>>>>>> 469f0a3... Initial work on serialisation - BankDatabase
     <state width="1877" height="348" key="GridCell.Tab.0.bottom" timestamp="1586192565001">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
@@ -77,6 +102,9 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="702" y="148" key="refactoring.ChangeSignatureDialog/0.0.1920.1040/-1920.0.1920.1040@0.0.1920.1040" timestamp="1586192538710" />
+=======
+    <state x="765" y="223" key="#com.intellij.ide.util.MemberChooser/0.0.1920.1040@0.0.1920.1040" timestamp="1586195836358" />
+>>>>>>> Stashed changes
     <state x="623" y="225" width="672" height="678" key="search.everywhere.popup" timestamp="1586191232590">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>

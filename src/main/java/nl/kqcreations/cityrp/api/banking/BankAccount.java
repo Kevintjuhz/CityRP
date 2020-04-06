@@ -1,4 +1,4 @@
-package nl.kqcreations.cityrp.banking;
+package nl.kqcreations.cityrp.api.banking;
 
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 

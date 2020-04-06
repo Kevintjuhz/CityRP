@@ -25,7 +25,6 @@ public class PlayerListener implements Listener {
 		 * */
 		if (player.isOp()) {
 			Common.logFramed("Player is op");
-
 			CityCache.getCityCache(worldName);
 			if (CityCache.getCityCache(worldName).getCities().size() == 0) {
 				Common.tell(player,

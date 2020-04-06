@@ -1,4 +1,4 @@
-package nl.kqcreations.cityrp.banking;
+package nl.kqcreations.cityrp.api.banking;
 
 public interface Currency {
 

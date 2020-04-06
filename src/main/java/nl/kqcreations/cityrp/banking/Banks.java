@@ -1,5 +1,9 @@
 package nl.kqcreations.cityrp.banking;
 
+import nl.kqcreations.cityrp.api.banking.AbstractBankAccount;
+import nl.kqcreations.cityrp.api.banking.Bank;
+import nl.kqcreations.cityrp.api.banking.BankAccount;
+import nl.kqcreations.cityrp.api.banking.Currency;
 import org.mineacademy.fo.ChatUtil;
 
 import java.util.*;
