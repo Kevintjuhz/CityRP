@@ -98,11 +98,11 @@ public class CityCache extends YamlSectionConfig {
 	public static CityCache getCityCache(final World world) {
 		CityCache cache = cacheMap.get(world);
 
-		if (cache == null) {
-			cache = new CityCache(world);
-
-			cacheMap.put(world, cache);
-		}
+//		if (cache == null) {
+//			cache = new CityCache(world);
+//
+//			cacheMap.put(world, cache);
+//		}
 
 		return cache;
 	}

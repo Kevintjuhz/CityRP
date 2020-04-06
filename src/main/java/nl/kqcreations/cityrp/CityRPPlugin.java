@@ -19,12 +19,12 @@ public class CityRPPlugin extends SimplePlugin {
 			registerCommands("city", new CityCommandGroup());
 
 			// Loading all the worlds cache
-
 			for (World world : Bukkit.getServer().getWorlds()) {
 				CityCache cache = CityCache.getCityCache(world);
 			}
 
 			registerEvents(new PlayerListener());
+			Common.log("THIS");
 
 		} else {
 			Common.logFramed("&cCityRP could not be loaded, Please make sure you have WorldGuard installed");
