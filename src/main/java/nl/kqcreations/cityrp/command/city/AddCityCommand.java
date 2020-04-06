@@ -32,13 +32,8 @@ public class AddCityCommand extends SimpleSubCommand {
 			regionName = "__global__";
 
 		final CityCache cache = CityCache.getCityCache(worldName);
-		if (cache.getCityByName(worldName, cityName).isPresent()) {
-			tell("&cA city with the name " + cityName + " already exists!");
-			return;
-		}
-
-		if (cache.getCityByRegion(worldName, regionName).isPresent()) {
-			tell("&cA city already exists in region " + regionName + "!");
+		if (cache.CityExists(worldName, cityName)) {
+			tell("&cA city with the name " + cityName + "or region name " + regionName + " already exists!");
 			return;
 		}
 
