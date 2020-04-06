@@ -3,7 +3,7 @@ package nl.kqcreations.cityrp.city;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.bukkit.ChatColor;
-import org.bukkit.World;
+import org.mineacademy.fo.Valid;
 import org.mineacademy.fo.collection.SerializedMap;
 import org.mineacademy.fo.model.ConfigSerializable;
 import org.mineacademy.fo.settings.YamlSectionConfig;
@@ -13,14 +13,14 @@ import java.util.*;
 @Getter
 public class CityCache extends YamlSectionConfig {
 
-	private static final Map<World, CityCache> cacheMap = new HashMap<>();
+	private static final Map<String, CityCache> cacheMap = new HashMap<>();
 
-	private final World world;
+	private final String world;
 	private Collection<City> cities = new HashSet<>();
 
 
-	public CityCache(final World world) {
-		super(world.getName());
+	public CityCache(final String world) {
+		super(world);
 		this.world = world;
 
 		loadConfiguration(NO_DEFAULT, "data/cities.yml");
@@ -45,50 +45,63 @@ public class CityCache extends YamlSectionConfig {
 //		addCity(world, name, color, "");
 //	}
 
-	public static void addCity(final World world, final String name, final String wg_region) {
+	public static boolean CityExists(final String world, final String name) {
+		CityCache cache = cacheMap.get(world);
+		Valid.checkNotNull(cache, "World named " + name + "does not exist!");
+		return cache.getCities().stream().allMatch((city) -> city.getName().equals(name) || city.getWgRegion().equals(name));
+	}
+
+	public static void addCity(final String world, final String name, final String wg_region) {
 		addCity(world, name, wg_region, ChatColor.WHITE);
 	}
 
-	public static void addCity(final World world, final String name, final String wg_region, final ChatColor color) {
-		CityCache cache = cacheMap.get(world);
+	public static void addCity(final String world, final String name, final String wg_region, final ChatColor color) {
+		CityCache cache = getCityCache(world);
 
 		if (cache == null) {
 			cache = new CityCache(world);
 			cacheMap.put(world, cache);
 		}
 
-		cache.getCities().add(new City(name, wg_region, color));
+		boolean notContainsCity = cache.getCities().stream().noneMatch((city) -> city.getWgRegion().equals(wg_region) || city.getName().equals(name));
+
+		if (notContainsCity) {
+			cache.cities.add(new City(name, wg_region, color));
+			cache.save("Cities", cache.cities);
+		}
 	}
 
-	public static CityCache getCityCache(final World world) {
+	public static CityCache getCityCache(final String world) {
 		CityCache cache = cacheMap.get(world);
 
-//		if (cache == null) {
-//			cache = new CityCache(world);
-//
-//			cacheMap.put(world, cache);
-//		}
+		if (cache == null) {
+			cache = new CityCache(world);
+
+			cacheMap.put(world, cache);
+		}
 
 		return cache;
 	}
 
-	public static Optional<City> getCityByName(final World world, final String name) {
-		CityCache cache = cacheMap.get(world);
+	public static Optional<City> getCityByRegion(final String world, final String region) {
+		CityCache cache = getCityCache(world);
+
+		for (final City city : cache.getCities())
+			if (city.getWgRegion().equals(region)) {
+				return Optional.of(city);
+			}
+
+		return Optional.empty();
+	}
+
+	public static Optional<City> getCityByName(final String world, final String name) {
+		CityCache cache = getCityCache(world);
 
 		for (final City city : cache.getCities())
 			if (city.getName().equals(name)) {
 				return Optional.of(city);
 			}
-
-
 		return Optional.empty();
-	}
-
-	public static Collection<City> getCities(World world) {
-		CityCache cache = getCityCache(world);
-		Valid.checkNotNull(cache, "This world is not valid");
-
-		return cache.getCities();
 	}
 
 	// --------------------------------------------------------------------------------------------------------------
@@ -100,7 +113,7 @@ public class CityCache extends YamlSectionConfig {
 	public final static class City implements ConfigSerializable {
 
 		private String name;
-		private String wg_region;
+		private String wgRegion;
 		private ChatColor color;
 
 		@Override
@@ -108,7 +121,7 @@ public class CityCache extends YamlSectionConfig {
 			final SerializedMap map = new SerializedMap();
 
 			map.put("Name", name);
-			map.put("WG_Region", wg_region);
+			map.put("WG_Region", wgRegion);
 			map.put("Color", color.name());
 
 			return map;
