@@ -20,7 +20,7 @@ public class CityRPPlugin extends SimplePlugin {
 
 			// Loading all the worlds cache
 			for (World world : Bukkit.getServer().getWorlds()) {
-				CityCache cache = CityCache.getCityCache(world);
+				CityCache cache = CityCache.getCityCache(world.getName());
 			}
 
 			registerEvents(new PlayerListener());

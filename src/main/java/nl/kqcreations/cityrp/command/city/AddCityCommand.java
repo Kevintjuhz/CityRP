@@ -24,14 +24,20 @@ public class AddCityCommand extends SimpleSubCommand {
 		final String worldName = world.getName();
 
 		final String cityName = args[0].toLowerCase();
+		final String regionName;
 
-		final CityCache cache = CityCache.getCityCache(world);
-		if (cache.getName() != null) {
-			tell("&cA city in the world " + worldName + " already exists. Only one city per world can exist");
+		if (args.length > 1)
+			regionName = args[1];
+		else
+			regionName = "__global__";
+
+		final CityCache cache = CityCache.getCityCache(worldName);
+		if (cache.CityExists(worldName, cityName)) {
+			tell("&cA city with the name " + cityName + "or region name " + regionName + " already exists!");
 			return;
 		}
 
-		CityCache.addCity(world, cityName);
+		CityCache.addCity(worldName, cityName, regionName);
 		tell("&bSuccessfully added the " + cityName.toUpperCase());
 	}
 }
