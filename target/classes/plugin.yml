@@ -1,0 +1,5 @@
+name: CityRP
+version: 1.0.0
+main: nl.kqcreations.cityrp.CityRPPlugin
+author: Kevintjuhz
+api-version: 1.13

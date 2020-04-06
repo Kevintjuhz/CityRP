@@ -1,0 +1,5 @@
+name: CityRP
+version: ${project.version}
+main: ${main.class}
+author: Kevintjuhz
+api-version: 1.13
