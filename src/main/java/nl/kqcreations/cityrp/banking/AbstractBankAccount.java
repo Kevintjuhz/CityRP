@@ -13,6 +13,7 @@ public abstract class AbstractBankAccount implements BankAccount {
     private UUID opener;
     private double balance;
     private boolean frozen = false;
+
     private Map<UUID, AccessLevel> accessLevelMap = new HashMap<>();
 
     public AbstractBankAccount(Bank bank, UUID opener) {
