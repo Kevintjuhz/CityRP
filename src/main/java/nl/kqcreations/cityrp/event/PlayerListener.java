@@ -31,7 +31,6 @@ public class PlayerListener implements Listener {
 
 			if (CityCache.getCityCache(worldName) == null || CityCache.getCityCache(worldName).getCities().size() == 0) {
 				Common.tell(player, "&3" + Common.chatLineSmooth());
-				Common.tell(player, "   ");
 
 				Common.tell(player, "&3You have not yet setup any world to be an cityrp world! do:");
 				Common.tell(player, "&b/city add {name} [wg_region] &3- To setup a cit");

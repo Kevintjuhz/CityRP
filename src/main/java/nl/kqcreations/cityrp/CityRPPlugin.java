@@ -13,7 +13,6 @@ public class CityRPPlugin extends SimplePlugin {
 
 	@Override
 	protected void onPluginStart() {
-
 		if (HookManager.isWorldGuardLoaded()) {
 
 			registerCommands("city", new CityCommandGroup());

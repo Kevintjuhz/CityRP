@@ -1,5 +1,7 @@
 package nl.kqcreations.cityrp.banking;
 
+import nl.kqcreations.cityrp.api.banking.Currency;
+
 public enum Currencies implements Currency {
 
     CENTRAL("$");

@@ -1,5 +1,6 @@
-package nl.kqcreations.cityrp.banking;
+package nl.kqcreations.cityrp.api.banking;
 
+import nl.kqcreations.cityrp.util.JsonSerializable;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -7,20 +8,32 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
-public abstract class AbstractBankAccount implements BankAccount {
+public abstract class AbstractBankAccount implements BankAccount, JsonSerializable {
 
-    private Bank bank;
-    private UUID opener;
+    private final Bank bank;
+    private final UUID opener;
     private double balance;
     private boolean frozen = false;
 
     private Map<UUID, AccessLevel> accessLevelMap = new HashMap<>();
+
+    public AbstractBankAccount(AbstractBankAccount other) {
+        this.bank = other.bank;
+        this.opener = other.opener;
+        this.balance = other.balance;
+        this.frozen = other.frozen;
+    }
+
+    protected AbstractBankAccount(String serial) throws IllegalArgumentException {
+        this(JsonSerializable.gson.fromJson(serial, AbstractBankAccount.class));
+    }
 
     public AbstractBankAccount(Bank bank, UUID opener) {
         this(bank, opener, 0D);
     }
 
     public AbstractBankAccount(Bank bank, UUID opener, double initialBalance) {
+        super();
         this.bank = Objects.requireNonNull(bank);
         this.opener = Objects.requireNonNull(opener);
         setBalance(initialBalance);
@@ -111,5 +124,9 @@ public abstract class AbstractBankAccount implements BankAccount {
     @Override
     public @NotNull Map<String, Object> serialize() {
         throw new UnsupportedOperationException();
+    }
+
+    public String toJson() {
+        return JsonSerializable.gson.toJson(this);
     }
 }
