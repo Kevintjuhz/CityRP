@@ -120,16 +120,17 @@ public final class CityCache extends YamlSectionConfig {
 	 *
 	 * @param world
 	 * @param region
+	 * @return
 	 */
-	public static Optional<City> getCityByRegion(final String world, final String region) {
+	public static City getCityByRegion(final String world, final String region) {
 		CityCache cache = getCityCache(world);
 
 		for (final City city : cache.getCities())
 			if (city.getWgRegion().equals(region)) {
-				return Optional.of(city);
+				return city;
 			}
 
-		return Optional.empty();
+		return null;
 	}
 
 	/**
