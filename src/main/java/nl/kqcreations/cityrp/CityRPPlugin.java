@@ -17,7 +17,7 @@ import org.mineacademy.fo.model.HookManager;
 import org.mineacademy.fo.plugin.SimplePlugin;
 
 public class CityRPPlugin extends SimplePlugin {
-    
+
     public static StateFlag CITY_FLAG;
     public static StateFlag PLOT_FLAG;
 //	public static StateFlag SUB_PLOT_FLAG;
