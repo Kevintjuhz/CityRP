@@ -14,17 +14,13 @@ public class PlayerListener implements Listener {
 	@EventHandler
 	public void onJoin(PlayerJoinEvent event) {
 
-		Player player = event.getPlayer();
-		CityCache cache = CityCache.getCityCache(player.getWorld());
-
-		if (cache.getName() != null) {
-			ChatColor color = cache.getColor() != null ? cache.getColor() : ChatColor.WHITE;
-			Remain.sendTitle(player, Common.colorize("&7Welcome in"), Common.colorize(color + cache.getName()));
-			cache.getName().toUpperCase();
-		}
+		final Player player = event.getPlayer();
 
 		if (player.isOp()) {
+			Common.logFramed("Player is op");
+			Common.log(String.valueOf(CityCache.getCities().size()));
 			if (CityCache.getCities().size() == 0) {
+				Common.logFramed("City Size == 0");
 				Common.tell(player, "&3" + Common.chatLineSmooth());
 				Common.tell(player, "   ");
 
@@ -34,6 +30,14 @@ public class PlayerListener implements Listener {
 				Common.tell(player, "   ");
 				Common.tell(player, "&3" + Common.chatLineSmooth());
 			}
+		}
+
+		final CityCache cache = CityCache.getCityCache(player.getWorld());
+
+		if (cache.getName() != null) {
+			ChatColor color = cache.getColor() != null ? cache.getColor() : ChatColor.WHITE;
+			Remain.sendTitle(player, Common.colorize("&7Welcome in"), Common.colorize(color + cache.getName()));
+			cache.getName().toUpperCase();
 		}
 
 	}

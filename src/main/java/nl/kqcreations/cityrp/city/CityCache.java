@@ -1,121 +1,132 @@
 package nl.kqcreations.cityrp.city;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
+import org.mineacademy.fo.Valid;
+import org.mineacademy.fo.collection.SerializedMap;
+import org.mineacademy.fo.model.ConfigSerializable;
 import org.mineacademy.fo.settings.YamlSectionConfig;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Getter
 public class CityCache extends YamlSectionConfig {
 
-	private static final Map<World, CityCache> cacheMap = new HashMap<>();
+    private static final Map<World, CityCache> cacheMap = new HashMap<>();
 
-	private final World world;
-	private String name;
-	private String regionName;
-	private ChatColor color;
+    private final World world;
+    private Collection<City> cities = new HashSet<>();
 
-	public CityCache(final World world) {
-		super(world.getName());
-		this.world = world;
 
-		loadConfiguration(NO_DEFAULT, "data/cities.yml");
-		cacheMap.put(world, this);
+    public CityCache(final World world) {
+        super(world.getName());
+        this.world = world;
+
+        loadConfiguration(NO_DEFAULT, "data/cities.yml");
+        cacheMap.put(world, this);
+    }
+
+    @Override
+    protected void onLoadFinish() {
+        cities = getSetSafe("Cities", City.class);
+    }
+
+    public Collection<City> getCities() {
+    	return new HashSet<>(cities);
 	}
 
-	@Override
-	protected void onLoadFinish() {
-		if (isSet("Name"))
-			name = getString("Name");
 
-		if (isSet("Region_Name"))
-			regionName = getString("Region_Name");
+    // --------------------------------------------------------------------------------------------------------------
+    // Static methods below
+    // --------------------------------------------------------------------------------------------------------------
 
-		color = get("Color", ChatColor.class);
-	}
-
-	public void setName(final String name) {
-		this.name = name;
-
-		save("Name", name);
-	}
-
-	public void setColor(final ChatColor color) {
-		this.color = color;
-
-		save("Color", color.name());
-	}
-
-	public void setRegionName(final String regionName) {
-		this.regionName = regionName;
-
-		save("Region_Name", regionName);
-	}
-
-//	public void addCity(final String name, final World world) {
-//		addCity(name, "", world);
+//	public static void addCity(final World world, final String name) {
+//		addCity(world, name, ChatColor.WHITE);
 //	}
 //
-//	public void addCity(final String name, final String region_name, final World world) {
-//		Valid.checkNotNull(name, "City name cannot be null");
-//
-//		CityCache cache = new CityCache(world);
-//
+//	public static void addCity(final World world, final String name, final ChatColor color) {
+//		addCity(world, name, color, "");
 //	}
 
-	// --------------------------------------------------------------------------------------------------------------
-	// Static methods below
-	// --------------------------------------------------------------------------------------------------------------
+    public static void addCity(final World world, final String name, final String wg_region) {
+        addCity(world, name, wg_region, ChatColor.WHITE);
+    }
 
-	public static void addCity(final World world, final String name) {
-		addCity(world, name, ChatColor.WHITE);
-	}
+    public static void addCity(final World world, final String name, final String wg_region, final ChatColor color) {
+        CityCache cache = cacheMap.get(world);
 
-	public static void addCity(final World world, final String name, final ChatColor color) {
-		addCity(world, name, color, "");
-	}
+        if (cache == null) {
+            cache = new CityCache(world);
+            cacheMap.put(world, cache);
+        }
 
-	public static void addCity(final World world, final String name, final ChatColor color, final String wg_region) {
-		CityCache cache = cacheMap.get(world);
+        cache.cities.add(new City(name, wg_region, color));
+    }
 
-		if (cache != null)
-			return;
+    public static CityCache getCityCache(final World world) {
+        CityCache cache = cacheMap.get(world);
 
-		cache = new CityCache(world);
-		cache.setName(name);
-		cache.setColor(color);
-		cache.setRegionName(wg_region);
+//		if (cache == null) {
+//			cache = new CityCache(world);
+//
+//			cacheMap.put(world, cache);
+//		}
 
-		cacheMap.put(world, cache);
+        return cache;
+    }
 
-	}
+    public static Optional<City> getCityByName(final World world, final String name) {
+        CityCache cache = cacheMap.get(world);
 
-	public static CityCache getCityCache(final World world) {
-		CityCache cache = cacheMap.get(world);
+        for (final City city : cache.getCities())
+            if (city.getName().equals(name)) {
+                return Optional.of(city);
+            }
 
-		if (cache == null) {
-			cache = new CityCache(world);
 
-			cacheMap.put(world, cache);
-		}
+        return Optional.empty();
+    }
 
-		return cache;
-	}
+    public static Collection<City> getCities(World world) {
+        CityCache cache = getCityCache(world);
+        Valid.checkNotNull(cache, "This world is not valid");
 
-	public static CityCache getByName(final String name) {
-		for (final CityCache loadedClass : cacheMap.values())
-			if (loadedClass.getName().equals(name))
-				return loadedClass;
+        return cache.getCities();
+    }
 
-		return null;
-	}
+    // --------------------------------------------------------------------------------------------------------------
+    // Own classes
+    // --------------------------------------------------------------------------------------------------------------
 
-	public static List<CityCache> getCities() {
-		return new ArrayList<>(cacheMap.values());
-	}
+    @Getter
+    @AllArgsConstructor
+    public final static class City implements ConfigSerializable {
+
+        private String name;
+        private String wg_region;
+        private ChatColor color;
+
+        @Override
+        public SerializedMap serialize() {
+            final SerializedMap map = new SerializedMap();
+
+            map.put("Name", name);
+            map.put("WG_Region", wg_region);
+            map.put("Color", color.name());
+
+            return map;
+        }
+
+        public static City deserialize(final SerializedMap map) {
+            final String name = map.getString("Name");
+            final String wg_region = map.getString("WG_Region");
+            final ChatColor color = map.get("Color", ChatColor.class);
+
+            return new City(name, wg_region, color);
+        }
+
+    }
+
 }

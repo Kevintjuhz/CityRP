@@ -13,8 +13,7 @@ public interface Bank {
 
     double getConversionRateFor(Currency currency) throws IllegalArgumentException;
 
-    double convertToPrimary(double sum, Currency original);
-
+    double convertToPrimary(double sum, Currency original) throws IllegalArgumentException;
     Optional<BankAccount> getAccountById(int Id);
 
     Optional<Integer> getIdByAccount(BankAccount bankAccount);

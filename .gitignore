@@ -95,6 +95,7 @@ fabric.properties
 
 # Reason: https://github.com/joeblau/gitignore.io/issues/186#issuecomment-249601023
 
+*.idea
 *.iml
 modules.xml
 .idea/misc.xml
@@ -143,3 +144,7 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.gitignore.io/api/git,maven,windows,intellij+all
+CityRP.iml
+.idea/workspace.xml
+*.xml
+*.iml
