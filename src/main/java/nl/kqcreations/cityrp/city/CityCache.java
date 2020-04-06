@@ -3,6 +3,7 @@ package nl.kqcreations.cityrp.city;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.bukkit.ChatColor;
+import org.bukkit.World;
 import org.mineacademy.fo.Valid;
 import org.mineacademy.fo.collection.SerializedMap;
 import org.mineacademy.fo.model.ConfigSerializable;
@@ -27,9 +28,14 @@ public class CityCache extends YamlSectionConfig {
 		cacheMap.put(world, this);
 	}
 
+
 	@Override
 	protected void onLoadFinish() {
 		cities = getSetSafe("Cities", City.class);
+	}
+
+	public Collection<City> getCities() {
+		return new HashSet<>(cities);
 	}
 
 
@@ -56,7 +62,7 @@ public class CityCache extends YamlSectionConfig {
 	}
 
 	public static void addCity(final String world, final String name, final String wg_region, final ChatColor color) {
-		CityCache cache = getCityCache(world);
+		CityCache cache = cacheMap.get(world);
 
 		if (cache == null) {
 			cache = new CityCache(world);
@@ -94,14 +100,23 @@ public class CityCache extends YamlSectionConfig {
 		return Optional.empty();
 	}
 
-	public static Optional<City> getCityByName(final String world, final String name) {
-		CityCache cache = getCityCache(world);
+	public static Optional<City> getCityByName(final World world, final String name) {
+		CityCache cache = cacheMap.get(world);
 
 		for (final City city : cache.getCities())
 			if (city.getName().equals(name)) {
 				return Optional.of(city);
 			}
+
+
 		return Optional.empty();
+	}
+
+	public static Collection<City> getCities(String world) {
+		CityCache cache = getCityCache(world);
+		Valid.checkNotNull(cache, "This world is not valid");
+
+		return cache.getCities();
 	}
 
 	// --------------------------------------------------------------------------------------------------------------
