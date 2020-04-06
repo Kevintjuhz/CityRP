@@ -1,10 +1,11 @@
-package nl.kqcreations.cityrp.api.banking;
+package nl.kqcreations.cityrp.banking;
 
 
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import nl.kqcreations.cityrp.CityRPPlugin;
+import nl.kqcreations.cityrp.api.banking.Bank;
 import nl.kqcreations.cityrp.util.JsonSerializable;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitTask;
@@ -17,7 +18,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-class BankDatabase extends SimpleDatabase {
+public class BankDatabase extends SimpleDatabase {
 
     private Map<String, Bank> banks = new ConcurrentHashMap<>();
 
@@ -26,6 +27,8 @@ class BankDatabase extends SimpleDatabase {
 
     public BukkitTask loadBankAccounts(boolean async) {
         Runnable task = () -> {
+            Common.log("&b[Banking] &aLoading bank data from disk...");
+            long time = System.currentTimeMillis();
             try {
                 String sql = "SELECT * FROM Banks";
                 ResultSet rs = query(sql);
@@ -44,6 +47,8 @@ class BankDatabase extends SimpleDatabase {
             } catch (ReflectiveOperationException ex) {
                 Common.log("&c[SEVERE] Unable to reconstruct bank instance! ");
                 ex.printStackTrace();
+            } finally {
+                Common.log("&b[Banking] &aTime Taken: " + (System.currentTimeMillis() - time) + "ms.");
             }
         };
         return async ? Bukkit.getScheduler().runTaskAsynchronously(CityRPPlugin.getInstance(), task) : Bukkit.getScheduler().runTask(CityRPPlugin.getInstance(), task);

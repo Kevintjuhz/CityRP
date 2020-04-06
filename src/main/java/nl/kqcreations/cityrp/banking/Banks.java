@@ -4,6 +4,7 @@ import nl.kqcreations.cityrp.api.banking.AbstractBankAccount;
 import nl.kqcreations.cityrp.api.banking.Bank;
 import nl.kqcreations.cityrp.api.banking.BankAccount;
 import nl.kqcreations.cityrp.api.banking.Currency;
+import nl.kqcreations.cityrp.util.JsonSerializable;
 import org.mineacademy.fo.ChatUtil;
 
 import java.util.*;
@@ -17,6 +18,11 @@ public enum Banks implements Bank {
             int id = banks.getOrCreateIDFor(player);
             return banks.accountMap.computeIfAbsent(id, (unused) -> new AbstractBankAccount(banks, player) {
             });
+        }
+
+        @Override
+        public String toJson() {
+            return JsonSerializable.gson.toJson(this);
         }
     };
 
