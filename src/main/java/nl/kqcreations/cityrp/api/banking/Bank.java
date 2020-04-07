@@ -5,7 +5,7 @@ import org.mineacademy.fo.Valid;
 
 import java.util.*;
 
-public interface Bank extends JsonSerializable {
+public interface Bank extends JsonSerializable, TransactionExecutor {
 
     String getName();
 
@@ -192,6 +192,71 @@ public interface Bank extends JsonSerializable {
             @Override
             public String toJson() {
                 return JsonSerializable.gson.toJson(this);
+            }
+
+            @Override
+            public Transaction createTransaction(UUID invoker, UUID receiver, TransactionExecutor other) throws IllegalArgumentException {
+                if (!getAccountFor(invoker).isPresent()) {
+                    throw new IllegalArgumentException("No Bank Account found for invoker!");
+                }
+                return new Transaction(invoker, receiver, this, other);
+            }
+
+            @Override
+            public boolean handleTransaction(Transaction transaction) {
+                double sum = transaction.getSum();
+                if (sum < 0) {
+                    return false;
+                }
+                if (transaction.getInvokingExecutor().equals(this)) {
+                    Optional<BankAccount> account = this.getAccountFor(transaction.invoker);
+                    return account.map(bankAccount -> bankAccount.withdraw(sum)).orElse(false);
+                } else if (transaction.getReceivingExecutor().equals(this)) {
+                    Optional<BankAccount> account = this.getAccountFor(transaction.reciever);
+                    return account.map(bankAccount -> bankAccount.deposit(sum)).orElse(false);
+                }
+                return false;
+            }
+
+            @Override
+            public void callBack(Transaction transaction) {
+                double sum = transaction.getSum();
+                if (sum < 0) {
+                    return;
+                }
+                if (transaction.getInvokingExecutor().equals(this)) {
+                    Optional<BankAccount> account = this.getAccountFor(transaction.invoker);
+                    account.map(bankAccount -> bankAccount.deposit(sum)).orElseThrow(() -> new IllegalStateException("Account is frozen! Unable to call back transaction."));
+                } else if (transaction.getReceivingExecutor().equals(this)) {
+                    Optional<BankAccount> account = this.getAccountFor(transaction.reciever);
+                    account.map(bankAccount -> bankAccount.withdraw(sum)).orElseThrow(() -> new IllegalStateException("Account is frozen! Unable to call back transaction."));
+                }
+            }
+
+            @Override
+            public boolean equals(Object o) {
+                if (this == o) return true;
+                if (o == null || getClass() != o.getClass()) return false;
+
+                BankImpl bank = (BankImpl) o;
+
+                if (!Objects.equals(primaryCurrency, bank.primaryCurrency))
+                    return false;
+                if (!Objects.equals(idMap, bank.idMap)) return false;
+                if (!Objects.equals(accountMap, bank.accountMap)) return false;
+                if (!Objects.equals(conversionMap, bank.conversionMap))
+                    return false;
+                return Objects.equals(name, bank.name);
+            }
+
+            @Override
+            public int hashCode() {
+                int result = primaryCurrency != null ? primaryCurrency.hashCode() : 0;
+                result = 31 * result + (idMap != null ? idMap.hashCode() : 0);
+                result = 31 * result + (accountMap != null ? accountMap.hashCode() : 0);
+                result = 31 * result + (conversionMap != null ? conversionMap.hashCode() : 0);
+                result = 31 * result + (name != null ? name.hashCode() : 0);
+                return result;
             }
         }
 
