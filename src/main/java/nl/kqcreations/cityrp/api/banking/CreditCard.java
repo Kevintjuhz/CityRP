@@ -6,6 +6,10 @@ import java.util.UUID;
 
 public interface CreditCard extends TransactionExecutor {
 
+    int getNumericalID();
+
+    String getName();
+
     UUID getOwner();
 
     Bank getBackingBank();

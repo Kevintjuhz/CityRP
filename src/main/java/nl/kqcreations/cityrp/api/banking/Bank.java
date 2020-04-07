@@ -1,11 +1,13 @@
 package nl.kqcreations.cityrp.api.banking;
 
+import com.comphenix.protocol.wrappers.collection.BiFunction;
 import nl.kqcreations.cityrp.util.JsonSerializable;
 import org.mineacademy.fo.Valid;
 
 import java.util.*;
+import java.util.function.Function;
 
-public interface Bank extends JsonSerializable, TransactionExecutor {
+public interface Bank extends ICreditService, JsonSerializable, TransactionExecutor {
 
     String getName();
 
@@ -38,6 +40,7 @@ public interface Bank extends JsonSerializable, TransactionExecutor {
         private Currency primaryCurrency;
         private Map<UUID, Integer> idMap = new HashMap<>();
         private Map<Integer, BankAccount> accountMap = new HashMap<>();
+        private Map<UUID, Collection<CreditCard>> creditCards = new HashMap<>();
         private Map<Currency, Double> conversionMap = new HashMap<>();
         private String name;
 
@@ -72,6 +75,11 @@ public interface Bank extends JsonSerializable, TransactionExecutor {
             return this;
         }
 
+        public Builder setCreditCards(Map<UUID, Collection<CreditCard>> creditCards) {
+            this.creditCards = creditCards;
+            return this;
+        }
+
         public Builder setName(String name) {
             this.name = name;
             return this;
@@ -92,7 +100,7 @@ public interface Bank extends JsonSerializable, TransactionExecutor {
         }
 
         public Bank buildAndClear() {
-            BankImpl bank = new BankImpl(name, primaryCurrency, conversionMap);
+            BankImpl bank = new BankImpl(name, primaryCurrency, conversionMap, creditCards);
             bank.idMap = new HashMap<>(idMap);
             bank.accountMap = new HashMap<>(accountMap);
             bank.conversionMap = new HashMap<>(conversionMap);
@@ -106,12 +114,23 @@ public interface Bank extends JsonSerializable, TransactionExecutor {
             Map<UUID, Integer> idMap = new HashMap<>();
             Map<Integer, BankAccount> accountMap = new HashMap<>();
             Map<Currency, Double> conversionMap;
+            Map<UUID, Collection<CreditCard>> creditCardData = new HashMap<>();
             private String name;
 
-            BankImpl(String name, Currency primaryCurrency, Map<Currency, Double> conversionMap) {
+            public BankImpl(String json) {
+                BankImpl bank = JsonSerializable.gson.fromJson(json, BankImpl.class);
+                this.primaryCurrency = bank.primaryCurrency;
+                this.idMap = bank.idMap;
+                this.accountMap = bank.accountMap;
+                this.conversionMap = bank.conversionMap;
+                this.name = bank.name;
+            }
+
+            BankImpl(String name, Currency primaryCurrency, Map<Currency, Double> conversionMap, Map<UUID, Collection<CreditCard>> creditCardData) {
                 this.name = name;
                 this.primaryCurrency = primaryCurrency;
                 this.conversionMap = new HashMap<>(conversionMap);
+                this.creditCardData = creditCardData;
             }
 
             private int getOrCreateIDFor(UUID player) {
@@ -231,6 +250,11 @@ public interface Bank extends JsonSerializable, TransactionExecutor {
                     Optional<BankAccount> account = this.getAccountFor(transaction.reciever);
                     account.map(bankAccount -> bankAccount.withdraw(sum)).orElseThrow(() -> new IllegalStateException("Account is frozen! Unable to call back transaction."));
                 }
+            }
+
+            @Override
+            public CreditCard getOrCreateCardFor(String name, UUID owner) {
+                throw new UnsupportedOperationException("Bank does not support credit-card creation.");
             }
 
             @Override

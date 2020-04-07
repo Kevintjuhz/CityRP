@@ -8,14 +8,17 @@ import nl.kqcreations.cityrp.CityRPPlugin;
 import nl.kqcreations.cityrp.api.banking.Bank;
 import nl.kqcreations.cityrp.util.JsonSerializable;
 import org.bukkit.Bukkit;
+import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.scheduler.BukkitTask;
 import org.mineacademy.fo.Common;
 import org.mineacademy.fo.database.SimpleDatabase;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class BankDatabase extends SimpleDatabase {
@@ -55,29 +58,30 @@ public class BankDatabase extends SimpleDatabase {
     }
 
 
+    /**
+     * Schedules a task which will update all the bank accounts.
+     *
+     * @param async Whether the updates should be done asynchronously.
+     * @return Returns a BukkitTask which represents the execution of submitting
+     * the accounts to be saved.
+     */
     public BukkitTask saveBankAccounts(boolean async) {
-        Runnable task = () -> {
-            for (Bank bank : banks.values()) {
-                String json = bank.toJson();
-                String clazz = bank.getClass().getCanonicalName();
-                String name = bank.getName();
-                String sql = "REMOVE * FROM Banks WHERE Name = " + name;
-                update(sql);
-                sql = "INSERT INTO Banks ('Name', 'JsonData', 'Class'), values(" + name + "," + json + "," + clazz + ")";
-                update(sql);
-            }
-        };
-        return async ? Bukkit.getScheduler().runTaskAsynchronously(CityRPPlugin.getInstance(), task) : Bukkit.getScheduler().runTask(CityRPPlugin.getInstance(), task);
+        BukkitScheduler scheduler = Bukkit.getScheduler();
+        Collection<String> sqls = banks.values().stream().map(this::generateSaveSQL).collect(Collectors.toSet());
+        Runnable task = () -> sqls.forEach(this::update);
+        return async ? scheduler.runTaskAsynchronously(CityRPPlugin.getInstance(), task) : scheduler.runTask(CityRPPlugin.getInstance(), task);
     }
 
-    public void saveBankData(Bank bank) {
+    public void saveBankData(final Bank bank) {
+        update(generateSaveSQL(bank));
+    }
+
+    private String generateSaveSQL(Bank bank) {
         String json = bank.toJson();
         String clazz = bank.getClass().getCanonicalName();
         String name = bank.getName();
-        String sql = "REMOVE * FROM Banks WHERE Name = " + name;
-        update(sql);
-        sql = "INSERT INTO Banks ('Name', 'JsonData', 'Class'), values(" + name + "," + json + "," + clazz + ")";
-        update(sql);
+        return "INSERT INTO Banks ('Name', 'JsonData', 'Class'), values(" + name + "," + json + "," + clazz + ") " +
+                "ON DUPLICATE KEY UPDATE JsonData=" + json + ", class=" + clazz;
     }
 
     public void loadBankData(Bank bank) {

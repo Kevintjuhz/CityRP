@@ -50,6 +50,5 @@ public class Transaction {
             return false;
         }
         return true;
-
     }
 }

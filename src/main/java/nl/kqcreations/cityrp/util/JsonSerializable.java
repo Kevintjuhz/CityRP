@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 
 import java.lang.reflect.Type;
 
-public interface JsonSerializable {
+public interface JsonSerializable{
 
     Gson gson = new Gson();;
 
