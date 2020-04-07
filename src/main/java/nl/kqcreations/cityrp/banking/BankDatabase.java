@@ -23,11 +23,16 @@ import java.util.stream.Collectors;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class BankDatabase extends SimpleDatabase {
 
-    private Map<String, Bank> banks = new ConcurrentHashMap<>();
-
     @Getter
     private static final BankDatabase instance = new BankDatabase();
+    private Map<String, Bank> banks = new ConcurrentHashMap<>();
 
+    /**
+     * Load all bank accounts from the DB into memory.
+     *
+     * @param async Whether this operation should be done asynchronously.
+     * @return Returns a BukkitTask representing the state of execution.
+     */
     public BukkitTask loadBankAccounts(boolean async) {
         Runnable task = () -> {
             Common.log("&b[Banking] &aLoading bank data from disk...");
@@ -62,8 +67,8 @@ public class BankDatabase extends SimpleDatabase {
      * Schedules a task which will update all the bank accounts.
      *
      * @param async Whether the updates should be done asynchronously.
-     * @return Returns a BukkitTask which represents the execution of submitting
-     * the accounts to be saved.
+     * @return Returns a BukkitTask which represents the execution state
+     * of saving the accounts.
      */
     public BukkitTask saveBankAccounts(boolean async) {
         BukkitScheduler scheduler = Bukkit.getScheduler();
@@ -72,10 +77,48 @@ public class BankDatabase extends SimpleDatabase {
         return async ? scheduler.runTaskAsynchronously(CityRPPlugin.getInstance(), task) : scheduler.runTask(CityRPPlugin.getInstance(), task);
     }
 
-    public void saveBankData(final Bank bank) {
-        update(generateSaveSQL(bank));
+    public BukkitTask saveBankData(final Bank bank, boolean async) {
+        String sql = generateSaveSQL(bank);
+        Runnable runnable = () -> update(sql);
+        return async ? Bukkit.getScheduler().runTaskAsynchronously(CityRPPlugin.getInstance(), runnable) : Bukkit.getScheduler().runTask(CityRPPlugin.getInstance(), runnable);
     }
 
+    /**
+     * Loads and registers the bank by a given name from the database.
+     *
+     * @param bankName The name of the bank.
+     * @param async    Whether to do this operation async.
+     * @return Returns a BukkitTask which represents the execution of
+     * this task.
+     */
+    public BukkitTask loadAndRegisterBankData(String bankName, boolean async) {
+        Runnable runnable = () -> {
+            long time = System.currentTimeMillis();
+            ResultSet rs = query("SELECT * FROM Banks WHERE Name=" + bankName);
+            try {
+                String clazz = rs.getString("Class");
+                Class<?> unknown = Class.forName(clazz);
+                if (!Bank.class.isAssignableFrom(unknown)) {
+                    throw new IllegalArgumentException("Invalid Class " + clazz + " not type of Bank!");
+                }
+                String json = rs.getString("JsonData");
+                Bank bank = JsonSerializable.gson.fromJson(json, unknown.asSubclass(Bank.class));
+                registerBank(bank);
+            } catch (SQLException ex) {
+                Common.log("&b[Banking] &eWARN - Database error occurred, message: " + ex.getMessage());
+            } catch (ReflectiveOperationException ex) {
+                Common.log("&b[Banking] &cERROR - Unable to reconstruct bank instance!");
+                ex.printStackTrace();
+            } finally {
+                Common.log("&b[Banking] Time Taken: " + (System.currentTimeMillis() - time) + "ms.");
+            }
+        };
+        return async ? Bukkit.getScheduler().runTaskAsynchronously(CityRPPlugin.getInstance(), runnable) : Bukkit.getScheduler().runTask(CityRPPlugin.getInstance(), runnable);
+    }
+
+    /**
+     * Internal method to generate a SQL statement to save to DB.
+     */
     private String generateSaveSQL(Bank bank) {
         String json = bank.toJson();
         String clazz = bank.getClass().getCanonicalName();
@@ -84,9 +127,6 @@ public class BankDatabase extends SimpleDatabase {
                 "ON DUPLICATE KEY UPDATE JsonData=" + json + ", class=" + clazz;
     }
 
-    public void loadBankData(Bank bank) {
-
-    }
 
     public void registerBank(Bank bank) {
         if (banks.containsKey(bank.getName())) {
@@ -97,7 +137,7 @@ public class BankDatabase extends SimpleDatabase {
 
     public void unregisterBank(Bank bank, boolean saveData) {
         if (banks.containsKey(bank.getName()) && saveData) {
-            saveBankData(bank);
+            saveBankData(bank, true);
         }
         banks.remove(bank.getName());
     }

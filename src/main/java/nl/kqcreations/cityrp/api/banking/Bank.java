@@ -1,13 +1,15 @@
 package nl.kqcreations.cityrp.api.banking;
 
-import com.comphenix.protocol.wrappers.collection.BiFunction;
 import nl.kqcreations.cityrp.util.JsonSerializable;
 import org.mineacademy.fo.Valid;
 
 import java.util.*;
-import java.util.function.Function;
 
 public interface Bank extends ICreditService, JsonSerializable, TransactionExecutor {
+
+    static Builder builder() {
+        return new Builder();
+    }
 
     String getName();
 
@@ -30,10 +32,6 @@ public interface Bank extends ICreditService, JsonSerializable, TransactionExecu
     Optional<BankAccount> getAccountFor(UUID player);
 
     BankAccount createAccount(UUID player);
-
-    static Builder builder() {
-        return new Builder();
-    }
 
     class Builder {
 
@@ -110,11 +108,11 @@ public interface Bank extends ICreditService, JsonSerializable, TransactionExecu
 
         private class BankImpl implements Bank {
 
-            private Currency primaryCurrency;
             Map<UUID, Integer> idMap = new HashMap<>();
             Map<Integer, BankAccount> accountMap = new HashMap<>();
             Map<Currency, Double> conversionMap;
             Map<UUID, Collection<CreditCard>> creditCardData = new HashMap<>();
+            private Currency primaryCurrency;
             private String name;
 
             public BankImpl(String json) {

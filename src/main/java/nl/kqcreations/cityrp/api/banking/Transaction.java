@@ -17,11 +17,6 @@ public class Transaction {
         this.receivingExecutor = Objects.requireNonNull(receivingExecutor);
     }
 
-    public Transaction setSum(double sum) {
-        this.sum = sum;
-        return this;
-    }
-
     public TransactionExecutor getInvokingExecutor() {
         return invokingExecutor;
     }
@@ -32,6 +27,11 @@ public class Transaction {
 
     public double getSum() {
         return sum;
+    }
+
+    public Transaction setSum(double sum) {
+        this.sum = sum;
+        return this;
     }
 
     /**
