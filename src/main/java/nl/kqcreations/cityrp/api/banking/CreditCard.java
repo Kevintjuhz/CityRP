@@ -16,7 +16,9 @@ public interface CreditCard extends TransactionExecutor {
 
     double getInterest();
 
-    boolean enabled();
+    boolean isEnabled();
+
+    void setEnabled(boolean enabled);
 
     ItemStack getAsItem();
 
