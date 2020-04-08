@@ -5,6 +5,7 @@ import com.sk89q.worldguard.protection.flags.Flag;
 import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.flags.registry.FlagConflictException;
 import com.sk89q.worldguard.protection.flags.registry.FlagRegistry;
+import nl.kqcreations.cityrp.api.API;
 import nl.kqcreations.cityrp.city.CityCache;
 import nl.kqcreations.cityrp.command.city.CityCommandGroup;
 import nl.kqcreations.cityrp.event.PlayerListener;
@@ -47,7 +48,7 @@ public class CityRPPlugin extends SimplePlugin {
             }
 
             registerCommands("city", new CityCommandGroup());
-
+            API.loadBanking();
             registerEvents(new PlayerListener());
         }
     }
@@ -55,6 +56,7 @@ public class CityRPPlugin extends SimplePlugin {
     @Override
     protected void onPluginStop() {
         cleanBeforeReload();
+        API.saveBankingData();
     }
 
     @Override

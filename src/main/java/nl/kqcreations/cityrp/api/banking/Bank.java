@@ -52,6 +52,7 @@ public interface Bank extends ICreditService, JsonSerializable, TransactionExecu
             this.idMap = new HashMap<>(other.idMap);
             this.accountMap = new HashMap<>(other.accountMap);
             this.conversionMap = new HashMap<>(other.conversionMap);
+            this.creditCards = new HashMap<>(other.creditCards);
             this.name = other.name;
         }
 
@@ -262,21 +263,24 @@ public interface Bank extends ICreditService, JsonSerializable, TransactionExecu
 
                 BankImpl bank = (BankImpl) o;
 
-                if (!Objects.equals(primaryCurrency, bank.primaryCurrency))
-                    return false;
                 if (!Objects.equals(idMap, bank.idMap)) return false;
                 if (!Objects.equals(accountMap, bank.accountMap)) return false;
                 if (!Objects.equals(conversionMap, bank.conversionMap))
+                    return false;
+                if (!Objects.equals(creditCardData, bank.creditCardData))
+                    return false;
+                if (!Objects.equals(primaryCurrency, bank.primaryCurrency))
                     return false;
                 return Objects.equals(name, bank.name);
             }
 
             @Override
             public int hashCode() {
-                int result = primaryCurrency != null ? primaryCurrency.hashCode() : 0;
-                result = 31 * result + (idMap != null ? idMap.hashCode() : 0);
+                int result = idMap != null ? idMap.hashCode() : 0;
                 result = 31 * result + (accountMap != null ? accountMap.hashCode() : 0);
                 result = 31 * result + (conversionMap != null ? conversionMap.hashCode() : 0);
+                result = 31 * result + (creditCardData != null ? creditCardData.hashCode() : 0);
+                result = 31 * result + (primaryCurrency != null ? primaryCurrency.hashCode() : 0);
                 result = 31 * result + (name != null ? name.hashCode() : 0);
                 return result;
             }
