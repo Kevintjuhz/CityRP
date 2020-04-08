@@ -1,5 +1,6 @@
 package nl.kqcreations.cityrp;
 
+import nl.kqcreations.cityrp.api.API;
 import nl.kqcreations.cityrp.cache.CacheLoader;
 import nl.kqcreations.cityrp.command.AddWorldCommand;
 import nl.kqcreations.cityrp.command.city.CityCommandGroup;
@@ -20,57 +21,60 @@ import java.util.List;
 
 public class CityRPPlugin extends SimplePlugin {
 
-	private CityChangeTask cityChangeTask;
+    private CityChangeTask cityChangeTask;
 
-	@Override
-	protected void onPluginStart() {
-		if (!HookManager.isWorldGuardLoaded()) {
-			Common.logFramed("&cCityRP could not be loaded, Please make sure you have WorldGuard installed");
-			Bukkit.getPluginManager().disablePlugin(this);
-			return;
-		}
+    @Override
+    protected void onPluginStart() {
+        if (!HookManager.isWorldGuardLoaded()) {
+            Common.logFramed("&cCityRP could not be loaded, Please make sure you have WorldGuard installed");
+            Bukkit.getPluginManager().disablePlugin(this);
+            return;
+        }
 
-		CacheLoader.getInstance().load();
+        CacheLoader.getInstance().load();
+        API.loadAll();
 
-		cityChangeTask = new CityChangeTask();
-		cityChangeTask.runTaskTimer(this, 0, 2 * 20);
+        cityChangeTask = new CityChangeTask();
+        cityChangeTask.runTaskTimer(this, 0, 2 * 20);
 
-		registerCommand(new AddWorldCommand());
-		registerCommand(new PlotWandCommand());
+        registerCommand(new AddWorldCommand());
+        registerCommand(new PlotWandCommand());
 
-		registerCommands("plot", new PlotCommandGroup());
-		registerCommands("city", new CityCommandGroup());
+        registerCommands("plot", new PlotCommandGroup());
+        registerCommands("city", new CityCommandGroup());
 
-		registerEvents(new PlayerListener());
-	}
+        registerEvents(new PlayerListener());
 
-	@Override
-	protected void onPluginStop() {
-		cleanBeforeReload();
-	}
+    }
 
-	@Override
-	protected void onPluginLoad() {
-		cleanBeforeReload();
-	}
+    @Override
+    protected void onPluginStop() {
+        cleanBeforeReload();
+        API.saveBankingData();
+    }
 
-	// For bukkit runnables etc.
-	private void cleanBeforeReload() {
-		stopTaskIfRunning(cityChangeTask);
-	}
+    @Override
+    protected void onPluginLoad() {
+        cleanBeforeReload();
+    }
 
-	// Call this to stop task if running from within the cleanBeforeReload method
-	private void stopTaskIfRunning(final BukkitRunnable task) {
-		if (task != null) {
-			try {
-				task.cancel();
-			} catch (final IllegalStateException ex) {
-			}
-		}
-	}
+    // For bukkit runnables etc.
+    private void cleanBeforeReload() {
+        stopTaskIfRunning(cityChangeTask);
+    }
 
-	@Override
-	public List<Class<? extends YamlStaticConfig>> getSettings() {
-		return Arrays.asList(Settings.class);
-	}
+    // Call this to stop task if running from within the cleanBeforeReload method
+    private void stopTaskIfRunning(final BukkitRunnable task) {
+        if (task != null) {
+            try {
+                task.cancel();
+            } catch (final IllegalStateException ex) {
+            }
+        }
+    }
+
+    @Override
+    public List<Class<? extends YamlStaticConfig>> getSettings() {
+        return Arrays.asList(Settings.class);
+    }
 }
