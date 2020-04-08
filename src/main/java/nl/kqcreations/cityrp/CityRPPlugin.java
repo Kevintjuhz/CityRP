@@ -48,7 +48,7 @@ public class CityRPPlugin extends SimplePlugin {
             }
 
             registerCommands("city", new CityCommandGroup());
-            API.loadBanking();
+            API.loadAll();
             registerEvents(new PlayerListener());
         }
     }
