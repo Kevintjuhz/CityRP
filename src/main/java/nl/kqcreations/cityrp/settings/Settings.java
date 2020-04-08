@@ -8,6 +8,16 @@ public class Settings extends SimpleSettings {
 		return 1;
 	}
 
+	public static class Plot {
+		public static Double DEFAULT_SQUARE_METER_PRICE;
+
+		private static void init() {
+			pathPrefix("Plots");
+
+			DEFAULT_SQUARE_METER_PRICE = getDoubleSafe("Default_Square_Meter_Price");
+		}
+	}
+
 	public static class Cities {
 		public static String DEFAULT_LAWS;
 		public static String DEFAULT_COLOR;

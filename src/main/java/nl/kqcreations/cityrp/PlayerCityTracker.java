@@ -20,20 +20,20 @@ public enum PlayerCityTracker {
 	private final Map<UUID, String> playersCurrentCity = new HashMap<>();
 
 	public void updatePlayerCityTracker(Player player) {
-		final UUID uuid = player.getUniqueId();
 		final World world = player.getWorld();
 		final String worldName = world.getName();
-		final Location location = player.getLocation();
 
 		WorldCache cache = WorldCache.getWorldCache(worldName);
 
 		if (cache == null)
 			return;
 
+		final Location location = player.getLocation();
+		final UUID uuid = player.getUniqueId();
+
 		final String region = getPlayerCurrentRegion(location);
 
 		if (!containsPlayer(uuid)) {
-
 			if (region != null)
 				setCurrentPlayerCity(uuid, region);
 			else

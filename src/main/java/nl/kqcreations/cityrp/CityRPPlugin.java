@@ -4,6 +4,7 @@ import nl.kqcreations.cityrp.cache.CacheLoader;
 import nl.kqcreations.cityrp.command.AddWorldCommand;
 import nl.kqcreations.cityrp.command.city.CityCommandGroup;
 import nl.kqcreations.cityrp.command.plot.PlotCommandGroup;
+import nl.kqcreations.cityrp.command.plot.PlotWandCommand;
 import nl.kqcreations.cityrp.event.PlayerListener;
 import nl.kqcreations.cityrp.settings.Settings;
 import nl.kqcreations.cityrp.task.CityChangeTask;
@@ -35,6 +36,7 @@ public class CityRPPlugin extends SimplePlugin {
 		cityChangeTask.runTaskTimer(this, 0, 2 * 20);
 
 		registerCommand(new AddWorldCommand());
+		registerCommand(new PlotWandCommand());
 
 		registerCommands("plot", new PlotCommandGroup());
 		registerCommands("city", new CityCommandGroup());
