@@ -6,5 +6,6 @@ public class PlotCommandGroup extends SimpleCommandGroup {
 	@Override
 	protected void registerSubcommands() {
 		registerSubcommand(new PlotInfoCommand(this));
+		registerSubcommand(new PlotAddCommand(this));
 	}
 }

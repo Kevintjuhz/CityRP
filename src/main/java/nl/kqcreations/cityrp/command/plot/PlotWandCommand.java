@@ -28,15 +28,15 @@ public class PlotWandCommand extends SimpleCommand {
 		switch (args[0]) {
 			case "get":
 				player.getInventory().addItem(new PlotWand().getItem());
-				tell("&aYou were given a plotwand!");
+				tell("&bYou were given a plotwand!");
 				break;
 			case "pos1":
 				PLOT_UTIL.setPlotWandPos(uuid, 1, player.getLocation());
-				tell("&aFirst Postion set!");
+				tell("&bFirst Postion set!");
 				break;
 			case "pos2":
 				PLOT_UTIL.setPlotWandPos(uuid, 2, player.getLocation());
-				tell("&aSecond Position set!");
+				tell("&bSecond Position set!");
 				break;
 		}
 

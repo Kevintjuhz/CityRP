@@ -6,7 +6,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.mineacademy.fo.remain.Remain;
 
-import static nl.kqcreations.cityrp.PlayerCityTracker.INSTANCE;
+import static nl.kqcreations.cityrp.PlayerCityTracker.CITY_TRACKER;
 
 public class CityChangeTask extends BukkitRunnable {
 
@@ -16,7 +16,7 @@ public class CityChangeTask extends BukkitRunnable {
 		RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
 
 		for (Player player : Remain.getOnlinePlayers()) {
-			INSTANCE.updatePlayerCityTracker(player);
+			CITY_TRACKER.updatePlayerCityTracker(player);
 		}
 	}
 }

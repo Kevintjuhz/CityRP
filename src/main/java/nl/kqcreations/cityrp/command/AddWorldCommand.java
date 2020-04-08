@@ -26,6 +26,6 @@ public class AddWorldCommand extends SimpleCommand {
 		}
 
 		WorldCache.addWorld(worldName);
-		tell("&aYou successfully registered world " + worldName);
+		tell("&bYou successfully registered world " + worldName);
 	}
 }

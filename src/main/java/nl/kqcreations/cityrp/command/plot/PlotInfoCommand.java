@@ -6,7 +6,6 @@ import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import com.sk89q.worldguard.protection.regions.RegionContainer;
-import nl.kqcreations.cityrp.cache.CityCache;
 import nl.kqcreations.cityrp.settings.Settings;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -14,9 +13,10 @@ import org.bukkit.entity.Player;
 import org.mineacademy.fo.Common;
 import org.mineacademy.fo.command.SimpleCommandGroup;
 import org.mineacademy.fo.command.SimpleSubCommand;
-import org.mineacademy.fo.model.HookManager;
 
 import java.util.List;
+
+import static nl.kqcreations.cityrp.util.PlotUtil.PLOT_UTIL;
 
 public class PlotInfoCommand extends SimpleSubCommand {
 	protected PlotInfoCommand(SimpleCommandGroup parent) {
@@ -33,21 +33,11 @@ public class PlotInfoCommand extends SimpleSubCommand {
 		World world = player.getWorld();
 //		String worldName = world.getName();
 		Location location = player.getLocation();
-		String plotRegion = "";
+		String plot = PLOT_UTIL.getPlot(location);
 
-		List<String> hookRegions = HookManager.getRegions(location);
-
-		// Simple check to see if the player is standing in a region
-		for (String region : hookRegions) {
-			if (CityCache.getCityCache(region) != null)
-				continue;
-
-			plotRegion = region;
-			break;
-		}
 
 		// If player is not standing on a plot return
-		if (hookRegions == null || plotRegion == "") {
+		if (plot == null) {
 			tell("&cYou are currently not standing on a plot");
 			return;
 		}
@@ -56,7 +46,7 @@ public class PlotInfoCommand extends SimpleSubCommand {
 		RegionManager regions = container.get(BukkitAdapter.adapt(world));
 		assert regions != null;
 
-		ProtectedRegion region = regions.getRegion(plotRegion);
+		ProtectedRegion region = regions.getRegion(plot);
 		sendPlotInfoMessage(region);
 	}
 
