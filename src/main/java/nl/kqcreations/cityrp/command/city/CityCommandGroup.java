@@ -4,8 +4,8 @@ import org.mineacademy.fo.command.SimpleCommandGroup;
 
 public class CityCommandGroup extends SimpleCommandGroup {
 
-    @Override
-    protected void registerSubcommands() {
-        registerSubcommand(new AddCityCommand(this));
-    }
+	@Override
+	protected void registerSubcommands() {
+		registerSubcommand(new AddCityCommand(this));
+	}
 }

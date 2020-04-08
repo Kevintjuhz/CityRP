@@ -1,0 +1,13 @@
+Plots:
+  Default_Square_Meter_Price: 1000
+
+Cities:
+  Default_Laws: "http://kqcreations.nl"
+  Default_Color: "&a"
+
+
+Prefix: "&bCityRP &3//"
+Log_Lag_Over_Milis: 100
+Debug: []
+#Locale: "en"
+Version: 1
