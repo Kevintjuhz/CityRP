@@ -10,7 +10,7 @@ import org.mineacademy.fo.menu.model.ItemCreator;
 import org.mineacademy.fo.menu.tool.Tool;
 import org.mineacademy.fo.remain.CompMaterial;
 
-import static nl.kqcreations.cityrp.util.PlotUtil.PLOT_UTIL;
+import static nl.kqcreations.cityrp.util.SelectionUtil.SELECTION_UTIL;
 
 public class PlotWand extends Tool {
 
@@ -41,6 +41,6 @@ public class PlotWand extends Tool {
 			return;
 
 		event.setCancelled(true);
-		PLOT_UTIL.setPlotWandPos(player.getUniqueId(), pos, location);
+		SELECTION_UTIL.setSelectionPos(player.getUniqueId(), pos, location);
 	}
 }

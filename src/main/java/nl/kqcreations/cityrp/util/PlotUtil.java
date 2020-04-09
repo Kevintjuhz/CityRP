@@ -11,80 +11,52 @@ import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedCuboidRegion;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import com.sk89q.worldguard.protection.regions.RegionContainer;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
 import nl.kqcreations.cityrp.cache.CityCache;
+import nl.kqcreations.cityrp.settings.Settings;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.mineacademy.fo.Common;
 import org.mineacademy.fo.model.HookManager;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
+
+import static nl.kqcreations.cityrp.util.SelectionUtil.SELECTION_UTIL;
 
 public enum PlotUtil {
 
 	PLOT_UTIL;
 
-	private final Map<UUID, Selection> playerSelection = new HashMap<>();
-
-	// ===========================================================================
-	// Plot Wand methods
-	// ===========================================================================
-
-	public void setPlotWandPos(final UUID playerUuid, int position, Location location) {
-		setPlotWandPos(playerUuid, position, location, true);
-	}
-
-	public void setPlotWandPos(final UUID playerUuid, int position, Location location, boolean isExpanded) {
-		if (playerSelection.get(playerUuid) == null) {
-			playerSelection.put(playerUuid, new Selection());
-		}
-
-		Selection selection = playerSelection.get(playerUuid);
-
-		if (position == 1) {
-			if (isExpanded)
-				location.setY(1);
-			selection.setPlotWandPos1(BukkitAdapter.asBlockVector(location));
-
-		} else if (position == 2) {
-			if (isExpanded)
-				location.setY(256);
-			selection.setPlotWandPos2(BukkitAdapter.asBlockVector(location));
-		}
-	}
-
-	public boolean isSelectionSet(UUID playerUuid) {
-		final Selection selection = playerSelection.get(playerUuid);
-		boolean selectionSet = true;
-		if (selection.getPlotWandPos1() == null || selection.getPlotWandPos2() == null)
-			selectionSet = false;
-
-		return selectionSet;
-	}
-
 	// ===========================================================================
 	// Plot Methods
 	// ===========================================================================
 
-	public void addPlot(final Player player, String name) {
+	private double calculatePlotPrice(BlockVector3 first, BlockVector3 second) {
+		int x1 = first.getBlockX();
+		int z1 = first.getBlockZ();
+		int x2 = second.getBlockX();
+		int z2 = second.getBlockZ();
+
+		int area = Math.abs(x1 - x2) * Math.abs(z1 - z2);
+
+		return area * Settings.Plot.DEFAULT_SQUARE_METER_PRICE;
+	}
+
+	public String addPlot(final Player player, String name) {
+
+		SelectionUtil util = SELECTION_UTIL;
+
 		UUID uuid = player.getUniqueId();
 
-		if (!isSelectionSet(uuid)) {
-			Common.tell(player, "&cPlease select two positions before creating a plot!");
-			return;
+		if (!util.isSelectionSet(uuid)) {
+			return "&cPlease select two positions before creating a plot!";
 		}
 
-		Selection selection = playerSelection.get(uuid);
+		SelectionUtil.Selection selection = util.getSelection(uuid);
 
 		if (isAPlot(player.getWorld(), selection.getPlotWandPos1().toVector3()) || isAPlot(player.getWorld(), selection.getPlotWandPos2().toVector3())) {
-			Common.tell(player, "&cA plot on your location already exists");
-			return;
+			return "&cA plot on your location already exists";
 		}
 
 		RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
@@ -104,20 +76,7 @@ public enum PlotUtil {
 
 		regions.addRegion(region);
 
-		Common.tell(player, "&3Plot named " + name + " was successfully created");
-	}
-
-	public String getPlot(Location location) {
-		List<String> hookRegions = HookManager.getRegions(location);
-
-		for (String region : hookRegions) {
-			if (CityCache.getCityCache(region) != null)
-				continue;
-
-			return region;
-		}
-
-		return null;
+		return "&3Plot named " + name + " was successfully created";
 	}
 
 	public boolean isAPlot(World world, Vector3 vector3) {
@@ -135,22 +94,60 @@ public enum PlotUtil {
 		return false;
 	}
 
-	// ===========================================================================
-	// Custom Classes
-	// ===========================================================================
+	public String[] getPlotInfoMessage(Location location) {
 
-	@Getter
-	@AllArgsConstructor
-	public class Selection {
+		String plot = getPlot(location);
 
-		@Setter
-		private BlockVector3 plotWandPos1;
-
-		@Setter
-		private BlockVector3 plotWandPos2;
-
-		public Selection() {
-
+		// If player is not standing on a plot return
+		if (plot == null) {
+			return new String[]{"&cYou are currently not standing on a plot"};
 		}
+
+		RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
+		RegionManager regions = container.get(BukkitAdapter.adapt(location.getWorld()));
+		assert regions != null;
+
+		ProtectedRegion region = regions.getRegion(plot);
+
+		String[] message;
+
+		if (region.getOwners().getPlayers().isEmpty()) {
+			double price = calculatePlotPrice(region.getMinimumPoint(), region.getMaximumPoint());
+
+			message = new String[]{
+					"&3" + Common.chatLineSmooth(),
+					" \n",
+					"&3Plot information for plot: &b" + region.getId(),
+					"&3Plot price: &b$" + price,
+					"&3To buy this plot do: &b/plot buy",
+					" \n",
+					"&3" + Common.chatLineSmooth()
+			};
+		} else {
+			message = new String[]{
+					"&3" + Common.chatLineSmooth(),
+					" \n",
+					"&3Plot information for plot: &b" + region.getId(),
+					"&3Owners: &b" + region.getOwners().getPlayers(),
+					"&3Members: &b " + region.getMembers().getPlayers(),
+					" \n",
+					"&3" + Common.chatLineSmooth()
+			};
+		}
+
+		return message;
+	}
+
+	private String getPlot(Location location) {
+		List<String> hookRegions = HookManager.getRegions(location);
+
+		for (String region : hookRegions) {
+			if (CityCache.getCityCache(region) != null)
+				continue;
+
+			return region;
+		}
+
+		return null;
 	}
 }
