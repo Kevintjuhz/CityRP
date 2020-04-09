@@ -12,6 +12,8 @@ public interface BankAccount extends ConfigurationSerializable {
 
     Bank getBank();
 
+    String getName();
+
     /**
      * The creator of this account.
      *
@@ -59,6 +61,8 @@ public interface BankAccount extends ConfigurationSerializable {
     }
     */
 
+    void setBalance(double balance);
+
     boolean isFrozen();
 
     void setFrozen(boolean frozen);
@@ -69,9 +73,7 @@ public interface BankAccount extends ConfigurationSerializable {
 
     default void promoteAccess(UUID player) {
         AccessLevel current = getAccessOf(player);
-        if (current == null) {
-            current = AccessLevel.VIEW;
-        }
+        current = current == null ? AccessLevel.VIEW : current.getNext();
         setAccessOf(player, current);
     }
 

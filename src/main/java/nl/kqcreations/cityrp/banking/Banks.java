@@ -18,15 +18,22 @@ public enum Banks implements Economy, Bank {
 
     CENTRAL(Currencies.CENTRAL) {
         @Override
-        public BankAccount createAccount(UUID player) {
+        public BankAccount createAccount(String name, UUID player) {
             Banks banks = this;
             int id = banks.getOrCreateIDFor(player);
-            return banks.accountMap.computeIfAbsent(id, (unused) -> new AbstractBankAccount(banks, player) {
-            });
+            BankAccount account = new AbstractBankAccount(name, banks, player) {
+            };
+            banks.accountMap.computeIfAbsent(id, (unused) -> new BankAccountData()).addAccount(account);
+            return account;
         }
 
         @Override
-        public CreditCard getOrCreateCardFor(String name, UUID owner) {
+        public boolean supportsCreditCards() {
+            return false;
+        }
+
+        @Override
+        public CreditCard getOrCreateCardFor(String name, UUID owner) throws UnsupportedOperationException {
             throw new UnsupportedOperationException("Central Bank Cannot Create Credit Cards!");
         }
 
@@ -38,7 +45,7 @@ public enum Banks implements Economy, Bank {
 
     private final Currency primaryCurrency;
     private Map<UUID, Integer> idMap = new HashMap<>();
-    private Map<Integer, BankAccount> accountMap = new HashMap<>();
+    private Map<Integer, BankAccountData> accountMap = new HashMap<>();
     private Map<Currency, Double> currencyConversion = new HashMap<>();
     private Map<UUID, Collection<CreditCard>> creditCards = new HashMap<>();
 
@@ -50,7 +57,6 @@ public enum Banks implements Economy, Bank {
     public boolean isEnabled() {
         return true;
     }
-
 
 
     private int getOrCreateIDFor(UUID player) {
@@ -127,13 +133,12 @@ public enum Banks implements Economy, Bank {
 
     @Override
     public boolean hasAccount(String s) {
-        Player player = Bukkit.getPlayerExact(s);
-        return player != null && getAccountFor(player.getUniqueId()).isPresent();
+       throw new UnsupportedOperationException();
     }
 
     @Override
     public boolean hasAccount(OfflinePlayer offlinePlayer) {
-        return getAccountFor(offlinePlayer.getUniqueId()).isPresent();
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -148,13 +153,13 @@ public enum Banks implements Economy, Bank {
 
     @Override
     @SuppressWarnings("deprecation")
-    public double getBalance(String s){
+    public double getBalance(String s) {
         return getBalance(Bukkit.getOfflinePlayer(s));
     }
 
     @Override
     public double getBalance(OfflinePlayer offlinePlayer) {
-        return getAccountFor(offlinePlayer.getUniqueId()).orElseThrow(IllegalArgumentException::new).getCurrentBalance();
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -298,8 +303,7 @@ public enum Banks implements Economy, Bank {
         if (!offlinePlayer.hasPlayedBefore()) {
             return false;
         }
-        getOrCreateAccountFor(offlinePlayer.getUniqueId());
-        return true;
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -313,35 +317,40 @@ public enum Banks implements Economy, Bank {
     }
 
     @Override
-    public Optional<BankAccount> getAccountById(int Id) {
+    public Optional<BankAccountData> getAccountById(int Id) {
         return Optional.ofNullable(accountMap.get(Id));
     }
 
     @Override
-    public Optional<Integer> getIdByAccount(BankAccount bankAccount) {
-        for (Map.Entry<Integer, BankAccount> entry : accountMap.entrySet()) {
+    public Optional<Integer> getIdByAccount(BankAccountData bankAccount) {
+        for (Map.Entry<Integer, BankAccountData> entry : accountMap.entrySet()) {
             if (entry.getValue().equals(bankAccount)) return Optional.of(entry.getKey());
         }
         return Optional.empty();
     }
 
     @Override
-    public Optional<BankAccount> getAccountFor(UUID player) {
-        for (Map.Entry<Integer, BankAccount> entry : accountMap.entrySet()) {
-            if (entry.getValue().getOpener().equals(player)) return Optional.of(entry.getValue());
+    public Optional<BankAccount> getAccountFor(String name, UUID player) {
+        for (Map.Entry<Integer, BankAccountData> entry : accountMap.entrySet()) {
+            Optional<BankAccount> optionalBankAccount = entry.getValue().getAccount(name, player);
+            if (optionalBankAccount.isPresent()) {
+                return optionalBankAccount;
+            }
         }
         return Optional.empty();
     }
 
-    @Override
-    public abstract BankAccount createAccount(UUID player);
 
     @Override
-    public abstract CreditCard getOrCreateCardFor(String name, UUID owner);
-
-    @Override
-    public Transaction createTransaction(UUID invoker, UUID receiver, TransactionExecutor other) {
-        return null;
+    public Transaction createTransaction(String invokingAccountName, UUID invoker, String receivingAccountName, UUID receiver, TransactionExecutor other) {
+        return Transaction.builder()
+                .setInvoker(invoker)
+                .setReceiver(receiver)
+                .setInvokingExecutor(this)
+                .setReceivingExecutor(other)
+                .setInvokingAccountName(invokingAccountName)
+                .setReceivingAccountName(receivingAccountName)
+                .buildAndClear();
     }
 
     @Override
@@ -356,7 +365,7 @@ public enum Banks implements Economy, Bank {
 
     @Override
     public String toJson() {
-        return null;
+        return JsonSerializable.gson.toJson(this);
     }
 
     private static class CreditCardImpl implements CreditCard {
@@ -419,8 +428,15 @@ public enum Banks implements Economy, Bank {
         }
 
         @Override
-        public Transaction createTransaction(UUID invoker, UUID receiver, TransactionExecutor other) {
-            return new Transaction(invoker, receiver, this, other);
+        public Transaction createTransaction(String invokingAccountName, UUID invoker, String receivingAccountName, UUID receiver, TransactionExecutor other) {
+            return Transaction.builder()
+                    .setInvoker(invoker)
+                    .setReceiver(receiver)
+                    .setInvokingExecutor(this)
+                    .setReceivingExecutor(other)
+                    .setInvokingAccountName(invokingAccountName)
+                    .setReceivingAccountName(receivingAccountName)
+                    .buildAndClear();
         }
 
         @Override
@@ -430,14 +446,14 @@ public enum Banks implements Economy, Bank {
                 throw new IllegalArgumentException("Invalid sum!");
             }
             if (transaction.getInvokingExecutor().equals(this)) {
-                Optional<BankAccount> optionalBankAccount = bank.getAccountFor(transaction.invoker);
+                Optional<BankAccount> optionalBankAccount = bank.getAccountFor(transaction.invokingAccountName, transaction.invoker);
                 if (!optionalBankAccount.isPresent()) {
                     return false;
                 }
                 BankAccount account = optionalBankAccount.get();
                 return account.withdraw(sum);
             } else if (transaction.getReceivingExecutor().equals(this)) {
-                Optional<BankAccount> optionalBankAccount = bank.getAccountFor(transaction.receiver);
+                Optional<BankAccount> optionalBankAccount = bank.getAccountFor(transaction.receivingAccountName, transaction.receiver);
                 if (!optionalBankAccount.isPresent()) {
                     return false;
                 }
@@ -450,7 +466,7 @@ public enum Banks implements Economy, Bank {
         @Override
         public void callBack(Transaction transaction) {
             if (transaction.getInvokingExecutor().equals(this)) {
-                Optional<BankAccount> optionalBankAccount = bank.getAccountFor(transaction.invoker);
+                Optional<BankAccount> optionalBankAccount = bank.getAccountFor(transaction.invokingAccountName, transaction.invoker);
                 if (!optionalBankAccount.isPresent()) {
                     throw new IllegalStateException("Unable to rollback changes! Original Bank Account not found!");
                 }
@@ -459,7 +475,7 @@ public enum Banks implements Economy, Bank {
                     throw new IllegalStateException("Failed to deposit withdrawn sum!");
                 }
             } else if (transaction.getReceivingExecutor().equals(this)) {
-                Optional<BankAccount> optionalBankAccount = bank.getAccountFor(transaction.receiver);
+                Optional<BankAccount> optionalBankAccount = bank.getAccountFor(transaction.receivingAccountName, transaction.receiver);
                 if (!optionalBankAccount.isPresent()) {
                     throw new IllegalStateException("Unable to rollback changes! Original Bank Account not found!");
                 }
@@ -470,4 +486,4 @@ public enum Banks implements Economy, Bank {
             }
         }
     }
-}
+    }

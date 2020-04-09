@@ -15,29 +15,31 @@ public interface Bank extends ICreditService, JsonSerializable, TransactionExecu
 
     Currency getPrimaryCurrency();
 
+    boolean supportsCreditCards();
+
     boolean isCurrencyConversionSupported(Currency currency);
 
     double getConversionRateFor(Currency currency) throws IllegalArgumentException;
 
     double convertToPrimary(double sum, Currency original) throws IllegalArgumentException;
 
-    Optional<BankAccount> getAccountById(int Id);
+    Optional<BankAccountData> getAccountById(int Id);
 
-    Optional<Integer> getIdByAccount(BankAccount bankAccount);
+    Optional<Integer> getIdByAccount(BankAccountData bankAccount);
 
-    default BankAccount getOrCreateAccountFor(UUID player) {
-        return getAccountFor(player).orElse(createAccount(player));
+    default BankAccount getOrCreateAccountFor(String accountName, UUID player) {
+        return getAccountFor(accountName, player).orElse(createAccount(accountName, player));
     }
 
-    Optional<BankAccount> getAccountFor(UUID player);
+    Optional<BankAccount> getAccountFor(String name, UUID player);
 
-    BankAccount createAccount(UUID player);
+    BankAccount createAccount(String name, UUID player);
 
     class Builder {
 
         private Currency primaryCurrency;
         private Map<UUID, Integer> idMap = new HashMap<>();
-        private Map<Integer, BankAccount> accountMap = new HashMap<>();
+        private Map<Integer, BankAccountData> accountMap = new HashMap<>();
         private Map<UUID, Collection<CreditCard>> creditCards = new HashMap<>();
         private Map<Currency, Double> conversionMap = new HashMap<>();
         private String name;
@@ -62,7 +64,7 @@ public interface Bank extends ICreditService, JsonSerializable, TransactionExecu
             return this;
         }
 
-        public Builder setAccountMap(Map<Integer, BankAccount> accountMap) {
+        public Builder setAccountMap(Map<Integer, BankAccountData> accountMap) {
             this.accountMap.clear();
             this.accountMap.putAll(accountMap);
             return this;
@@ -110,7 +112,7 @@ public interface Bank extends ICreditService, JsonSerializable, TransactionExecu
         private class BankImpl implements Bank {
 
             Map<UUID, Integer> idMap = new HashMap<>();
-            Map<Integer, BankAccount> accountMap = new HashMap<>();
+            Map<Integer, BankAccountData> accountMap = new HashMap<>();
             Map<Currency, Double> conversionMap;
             Map<UUID, Collection<CreditCard>> creditCardData = new HashMap<>();
             private Currency primaryCurrency;
@@ -175,7 +177,7 @@ public interface Bank extends ICreditService, JsonSerializable, TransactionExecu
             }
 
             @Override
-            public Optional<BankAccount> getAccountById(int Id) {
+            public Optional<BankAccountData> getAccountById(int Id) {
                 if (!accountMap.containsKey(Id)) {
                     return Optional.empty();
                 }
@@ -183,8 +185,8 @@ public interface Bank extends ICreditService, JsonSerializable, TransactionExecu
             }
 
             @Override
-            public Optional<Integer> getIdByAccount(BankAccount bankAccount) {
-                for (Map.Entry<Integer, BankAccount> entry : accountMap.entrySet()) {
+            public Optional<Integer> getIdByAccount(BankAccountData bankAccount) {
+                for (Map.Entry<Integer, BankAccountData> entry : accountMap.entrySet()) {
                     if (bankAccount.equals(entry.getValue())) {
                         return Optional.of(entry.getKey());
                     }
@@ -193,17 +195,21 @@ public interface Bank extends ICreditService, JsonSerializable, TransactionExecu
             }
 
             @Override
-            public Optional<BankAccount> getAccountFor(UUID player) {
+            public Optional<BankAccount> getAccountFor(String name, UUID player) {
                 if (!idMap.containsKey(player)) {
                     return Optional.empty();
                 }
-                return getAccountById(idMap.get(player));
+                BankAccountData data = getAccountById(idMap.get(player)).orElse(null);
+                if (data == null) {
+                    return Optional.empty();
+                }
+                return data.getAccount(name, player);
             }
 
 
             @Override
-            public BankAccount createAccount(UUID player) {
-                return new AbstractBankAccount(this, player) {
+            public BankAccount createAccount(String name, UUID player) {
+                return new AbstractBankAccount(name, this, player) {
                 };
             }
 
@@ -213,11 +219,18 @@ public interface Bank extends ICreditService, JsonSerializable, TransactionExecu
             }
 
             @Override
-            public Transaction createTransaction(UUID invoker, UUID receiver, TransactionExecutor other) throws IllegalArgumentException {
-                if (!getAccountFor(invoker).isPresent()) {
+            public Transaction createTransaction(String invokingAccountName, UUID invoker, String receivingAccountName, UUID receiver, TransactionExecutor other) throws IllegalArgumentException {
+                if (!getAccountFor(invokingAccountName, invoker).isPresent()) {
                     throw new IllegalArgumentException("No Bank Account found for invoker!");
                 }
-                return new Transaction(invoker, receiver, this, other);
+                return Transaction.builder()
+                        .setInvoker(invoker)
+                        .setReceiver(receiver)
+                        .setInvokingExecutor(this)
+                        .setReceivingExecutor(other)
+                        .setInvokingAccountName(invokingAccountName)
+                        .setReceivingAccountName(receivingAccountName)
+                        .buildAndClear();
             }
 
             @Override
@@ -227,10 +240,10 @@ public interface Bank extends ICreditService, JsonSerializable, TransactionExecu
                     return false;
                 }
                 if (transaction.getInvokingExecutor().equals(this)) {
-                    Optional<BankAccount> account = this.getAccountFor(transaction.invoker);
+                    Optional<BankAccount> account = this.getAccountFor(transaction.invokingAccountName, transaction.invoker);
                     return account.map(bankAccount -> bankAccount.withdraw(sum)).orElse(false);
                 } else if (transaction.getReceivingExecutor().equals(this)) {
-                    Optional<BankAccount> account = this.getAccountFor(transaction.receiver);
+                    Optional<BankAccount> account = this.getAccountFor(transaction.receivingAccountName, transaction.receiver);
                     return account.map(bankAccount -> bankAccount.deposit(sum)).orElse(false);
                 }
                 return false;
@@ -243,12 +256,17 @@ public interface Bank extends ICreditService, JsonSerializable, TransactionExecu
                     return;
                 }
                 if (transaction.getInvokingExecutor().equals(this)) {
-                    Optional<BankAccount> account = this.getAccountFor(transaction.invoker);
+                    Optional<BankAccount> account = this.getAccountFor(transaction.invokingAccountName, transaction.invoker);
                     account.map(bankAccount -> bankAccount.deposit(sum)).orElseThrow(() -> new IllegalStateException("Account is frozen! Unable to call back transaction."));
                 } else if (transaction.getReceivingExecutor().equals(this)) {
-                    Optional<BankAccount> account = this.getAccountFor(transaction.receiver);
+                    Optional<BankAccount> account = this.getAccountFor(transaction.receivingAccountName, transaction.receiver);
                     account.map(bankAccount -> bankAccount.withdraw(sum)).orElseThrow(() -> new IllegalStateException("Account is frozen! Unable to call back transaction."));
                 }
+            }
+
+            @Override
+            public boolean supportsCreditCards() {
+                return false;
             }
 
             @Override
@@ -285,8 +303,6 @@ public interface Bank extends ICreditService, JsonSerializable, TransactionExecu
                 return result;
             }
         }
-
-
     }
 
 }

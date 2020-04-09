@@ -10,6 +10,7 @@ import java.util.UUID;
 
 public abstract class AbstractBankAccount implements BankAccount, JsonSerializable {
 
+    private final String name;
     private final Bank bank;
     private final UUID opener;
     private double balance;
@@ -18,6 +19,7 @@ public abstract class AbstractBankAccount implements BankAccount, JsonSerializab
     private Map<UUID, AccessLevel> accessLevelMap = new HashMap<>();
 
     public AbstractBankAccount(AbstractBankAccount other) {
+        this.name = other.name;
         this.bank = other.bank;
         this.opener = other.opener;
         this.balance = other.balance;
@@ -28,12 +30,13 @@ public abstract class AbstractBankAccount implements BankAccount, JsonSerializab
         this(JsonSerializable.gson.fromJson(serial, AbstractBankAccount.class));
     }
 
-    public AbstractBankAccount(Bank bank, UUID opener) {
-        this(bank, opener, 0D);
+    public AbstractBankAccount(String name, Bank bank, UUID opener) {
+        this(name, bank, opener, 0D);
     }
 
-    public AbstractBankAccount(Bank bank, UUID opener, double initialBalance) {
+    public AbstractBankAccount(String name, Bank bank, UUID opener, double initialBalance) {
         super();
+        this.name = name;
         this.bank = Objects.requireNonNull(bank);
         this.opener = Objects.requireNonNull(opener);
         setBalance(initialBalance);
@@ -46,6 +49,7 @@ public abstract class AbstractBankAccount implements BankAccount, JsonSerializab
      *
      * @param balance The non-negative balance.
      */
+    @Override
     public void setBalance(double balance) {
         if (balance < 0) {
             throw new IllegalArgumentException("Invalid Balance, cannot be negative!");
@@ -103,6 +107,11 @@ public abstract class AbstractBankAccount implements BankAccount, JsonSerializab
         }
         setBalance(getCurrentBalance() - targetSum);
         return true;
+    }
+
+    @Override
+    public String getName() {
+        return name;
     }
 
     @Override
