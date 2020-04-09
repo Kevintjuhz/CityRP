@@ -36,7 +36,7 @@ public class Transaction {
 
     /**
      * Executes this transaction by the order of,
-     * invoker first, reciever next.
+     * invoker first, receiver next.
      *
      * @return Returns whether the transaction was successfully processed.
      * @throws IllegalStateException Thrown if an account was frozen whilst a transaction was in progress.
