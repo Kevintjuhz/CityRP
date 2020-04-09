@@ -8,7 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-import static nl.kqcreations.cityrp.util.PlotUtil.PLOT_UTIL;
+import static nl.kqcreations.cityrp.util.SelectionUtil.SELECTION_UTIL;
 
 public class PlotWandCommand extends SimpleCommand {
 	public PlotWandCommand() {
@@ -31,11 +31,11 @@ public class PlotWandCommand extends SimpleCommand {
 				tell("&bYou were given a plotwand!");
 				break;
 			case "pos1":
-				PLOT_UTIL.setPlotWandPos(uuid, 1, player.getLocation());
+				SELECTION_UTIL.setSelectionPos(uuid, 1, player.getLocation());
 				tell("&bFirst Postion set!");
 				break;
 			case "pos2":
-				PLOT_UTIL.setPlotWandPos(uuid, 2, player.getLocation());
+				SELECTION_UTIL.setSelectionPos(uuid, 2, player.getLocation());
 				tell("&bSecond Position set!");
 				break;
 		}
