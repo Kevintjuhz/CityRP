@@ -6,13 +6,13 @@ import java.util.UUID;
 public class Transaction {
 
     public UUID invoker;
-    public UUID reciever;
+    public UUID receiver;
     private TransactionExecutor invokingExecutor, receivingExecutor;
     private double sum;
 
     public Transaction(UUID invoker, UUID reciever, TransactionExecutor invokingExecutor, TransactionExecutor receivingExecutor) {
         this.invoker = Objects.requireNonNull(invoker);
-        this.reciever = Objects.requireNonNull(reciever);
+        this.receiver = Objects.requireNonNull(reciever);
         this.invokingExecutor = Objects.requireNonNull(invokingExecutor);
         this.receivingExecutor = Objects.requireNonNull(receivingExecutor);
     }

@@ -230,7 +230,7 @@ public interface Bank extends ICreditService, JsonSerializable, TransactionExecu
                     Optional<BankAccount> account = this.getAccountFor(transaction.invoker);
                     return account.map(bankAccount -> bankAccount.withdraw(sum)).orElse(false);
                 } else if (transaction.getReceivingExecutor().equals(this)) {
-                    Optional<BankAccount> account = this.getAccountFor(transaction.reciever);
+                    Optional<BankAccount> account = this.getAccountFor(transaction.receiver);
                     return account.map(bankAccount -> bankAccount.deposit(sum)).orElse(false);
                 }
                 return false;
@@ -246,7 +246,7 @@ public interface Bank extends ICreditService, JsonSerializable, TransactionExecu
                     Optional<BankAccount> account = this.getAccountFor(transaction.invoker);
                     account.map(bankAccount -> bankAccount.deposit(sum)).orElseThrow(() -> new IllegalStateException("Account is frozen! Unable to call back transaction."));
                 } else if (transaction.getReceivingExecutor().equals(this)) {
-                    Optional<BankAccount> account = this.getAccountFor(transaction.reciever);
+                    Optional<BankAccount> account = this.getAccountFor(transaction.receiver);
                     account.map(bankAccount -> bankAccount.withdraw(sum)).orElseThrow(() -> new IllegalStateException("Account is frozen! Unable to call back transaction."));
                 }
             }

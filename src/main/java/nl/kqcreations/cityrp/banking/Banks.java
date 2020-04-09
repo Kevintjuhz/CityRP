@@ -1,15 +1,20 @@
 package nl.kqcreations.cityrp.banking;
 
+import net.milkbowl.vault.economy.Economy;
+import net.milkbowl.vault.economy.EconomyResponse;
 import nl.kqcreations.cityrp.api.banking.Currency;
 import nl.kqcreations.cityrp.api.banking.*;
 import nl.kqcreations.cityrp.util.JsonSerializable;
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.mineacademy.fo.ChatUtil;
 
 import java.util.*;
 import java.util.function.Supplier;
 
-public enum Banks implements Bank {
+public enum Banks implements Economy, Bank {
 
     CENTRAL(Currencies.CENTRAL) {
         @Override
@@ -40,6 +45,13 @@ public enum Banks implements Bank {
     Banks(Currency currency) {
         this.primaryCurrency = currency;
     }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+
+
 
     private int getOrCreateIDFor(UUID player) {
 
@@ -89,6 +101,218 @@ public enum Banks implements Bank {
     }
 
     @Override
+    public boolean hasBankSupport() {
+        return true;
+    }
+
+    @Override
+    public int fractionalDigits() {
+        return 0;
+    }
+
+    @Override
+    public String format(double v) {
+        return primaryCurrency.getIdentifier() + v;
+    }
+
+    @Override
+    public String currencyNamePlural() {
+        return primaryCurrency.getPluralName();
+    }
+
+    @Override
+    public String currencyNameSingular() {
+        return primaryCurrency.getName();
+    }
+
+    @Override
+    public boolean hasAccount(String s) {
+        Player player = Bukkit.getPlayerExact(s);
+        return player != null && getAccountFor(player.getUniqueId()).isPresent();
+    }
+
+    @Override
+    public boolean hasAccount(OfflinePlayer offlinePlayer) {
+        return getAccountFor(offlinePlayer.getUniqueId()).isPresent();
+    }
+
+    @Override
+    public boolean hasAccount(String playerName, String worldName) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean hasAccount(OfflinePlayer offlinePlayer, String worldName) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    public double getBalance(String s){
+        return getBalance(Bukkit.getOfflinePlayer(s));
+    }
+
+    @Override
+    public double getBalance(OfflinePlayer offlinePlayer) {
+        return getAccountFor(offlinePlayer.getUniqueId()).orElseThrow(IllegalArgumentException::new).getCurrentBalance();
+    }
+
+    @Override
+    public double getBalance(String playerName, String worldName) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public double getBalance(OfflinePlayer offlinePlayer, String worldName) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean has(String s, double v) {
+        return getBalance(s) >= v;
+    }
+
+    @Override
+    public boolean has(OfflinePlayer offlinePlayer, double v) {
+        return getBalance(offlinePlayer) >= v;
+    }
+
+    @Override
+    public boolean has(String s, String s1, double v) {
+        return getBalance(s, s1) >= v;
+    }
+
+    @Override
+    public boolean has(OfflinePlayer offlinePlayer, String s, double v) {
+        return getBalance(offlinePlayer, s) >= v;
+    }
+
+    @Override
+    public EconomyResponse withdrawPlayer(String s, double v) {
+        return null;
+    }
+
+    @Override
+    public EconomyResponse withdrawPlayer(OfflinePlayer offlinePlayer, double v) {
+        return null;
+    }
+
+    @Override
+    public EconomyResponse withdrawPlayer(String s, String s1, double v) {
+        return null;
+    }
+
+    @Override
+    public EconomyResponse withdrawPlayer(OfflinePlayer offlinePlayer, String s, double v) {
+        return null;
+    }
+
+    @Override
+    public EconomyResponse depositPlayer(String s, double v) {
+        return null;
+    }
+
+    @Override
+    public EconomyResponse depositPlayer(OfflinePlayer offlinePlayer, double v) {
+        return null;
+    }
+
+    @Override
+    public EconomyResponse depositPlayer(String s, String s1, double v) {
+        return null;
+    }
+
+    @Override
+    public EconomyResponse depositPlayer(OfflinePlayer offlinePlayer, String s, double v) {
+        return null;
+    }
+
+    @Override
+    public EconomyResponse createBank(String s, String s1) {
+        return null;
+    }
+
+    @Override
+    public EconomyResponse createBank(String s, OfflinePlayer offlinePlayer) {
+        return null;
+    }
+
+    @Override
+    public EconomyResponse deleteBank(String s) {
+        return null;
+    }
+
+    @Override
+    public EconomyResponse bankBalance(String s) {
+        return null;
+    }
+
+    @Override
+    public EconomyResponse bankHas(String s, double v) {
+        return null;
+    }
+
+    @Override
+    public EconomyResponse bankWithdraw(String s, double v) {
+        return null;
+    }
+
+    @Override
+    public EconomyResponse bankDeposit(String s, double v) {
+        return null;
+    }
+
+    @Override
+    public EconomyResponse isBankOwner(String s, String s1) {
+        return null;
+    }
+
+    @Override
+    public EconomyResponse isBankOwner(String s, OfflinePlayer offlinePlayer) {
+        return null;
+    }
+
+    @Override
+    public EconomyResponse isBankMember(String s, String s1) {
+        return null;
+    }
+
+    @Override
+    public EconomyResponse isBankMember(String s, OfflinePlayer offlinePlayer) {
+        return null;
+    }
+
+    @Override
+    public List<String> getBanks() {
+        return null;
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    public boolean createPlayerAccount(String s) {
+        return createPlayerAccount(Bukkit.getOfflinePlayer(s));
+    }
+
+    @Override
+    public boolean createPlayerAccount(OfflinePlayer offlinePlayer) {
+        if (!offlinePlayer.hasPlayedBefore()) {
+            return false;
+        }
+        getOrCreateAccountFor(offlinePlayer.getUniqueId());
+        return true;
+    }
+
+    @Override
+    public boolean createPlayerAccount(String s, String s1) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean createPlayerAccount(OfflinePlayer offlinePlayer, String s) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public Optional<BankAccount> getAccountById(int Id) {
         return Optional.ofNullable(accountMap.get(Id));
     }
@@ -128,6 +352,11 @@ public enum Banks implements Bank {
     @Override
     public void callBack(Transaction transaction) {
 
+    }
+
+    @Override
+    public String toJson() {
+        return null;
     }
 
     private static class CreditCardImpl implements CreditCard {
@@ -208,7 +437,7 @@ public enum Banks implements Bank {
                 BankAccount account = optionalBankAccount.get();
                 return account.withdraw(sum);
             } else if (transaction.getReceivingExecutor().equals(this)) {
-                Optional<BankAccount> optionalBankAccount = bank.getAccountFor(transaction.reciever);
+                Optional<BankAccount> optionalBankAccount = bank.getAccountFor(transaction.receiver);
                 if (!optionalBankAccount.isPresent()) {
                     return false;
                 }
@@ -230,7 +459,7 @@ public enum Banks implements Bank {
                     throw new IllegalStateException("Failed to deposit withdrawn sum!");
                 }
             } else if (transaction.getReceivingExecutor().equals(this)) {
-                Optional<BankAccount> optionalBankAccount = bank.getAccountFor(transaction.reciever);
+                Optional<BankAccount> optionalBankAccount = bank.getAccountFor(transaction.receiver);
                 if (!optionalBankAccount.isPresent()) {
                     throw new IllegalStateException("Unable to rollback changes! Original Bank Account not found!");
                 }
