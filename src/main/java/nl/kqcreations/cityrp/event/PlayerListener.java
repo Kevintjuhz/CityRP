@@ -7,7 +7,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.mineacademy.fo.Common;
 
-import static nl.kqcreations.cityrp.PlayerCityTracker.INSTANCE;
+import static nl.kqcreations.cityrp.PlayerCityTracker.CITY_TRACKER;
 
 public class PlayerListener implements Listener {
 
@@ -34,7 +34,7 @@ public class PlayerListener implements Listener {
 			}
 		}
 
-		INSTANCE.updatePlayerCityTracker(player);
+		CITY_TRACKER.updatePlayerCityTracker(player);
 	}
 
 }

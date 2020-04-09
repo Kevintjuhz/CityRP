@@ -15,7 +15,7 @@ import java.util.UUID;
 
 public enum PlayerCityTracker {
 
-	INSTANCE;
+	CITY_TRACKER;
 
 	private final Map<UUID, String> playersCurrentCity = new HashMap<>();
 

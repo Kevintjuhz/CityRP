@@ -1,7 +1,10 @@
 package nl.kqcreations.cityrp.command.plot;
 
+import org.bukkit.entity.Player;
 import org.mineacademy.fo.command.SimpleCommandGroup;
 import org.mineacademy.fo.command.SimpleSubCommand;
+
+import static nl.kqcreations.cityrp.util.PlotUtil.PLOT_UTIL;
 
 public class PlotAddCommand extends SimpleSubCommand {
 	protected PlotAddCommand(SimpleCommandGroup parent) {
@@ -13,6 +16,9 @@ public class PlotAddCommand extends SimpleSubCommand {
 
 	@Override
 	protected void onCommand() {
-//		ProtectedRegion region1 = new ProtectedCuboidRegion()
+		checkConsole();
+
+		final Player player = getPlayer();
+		PLOT_UTIL.addPlot(player, args[0]);
 	}
 }

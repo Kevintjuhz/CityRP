@@ -31,10 +31,10 @@ public class PlotWand extends Tool {
 
 		if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
 			pos = 1;
-			Common.tell(player, "&aFirst position set");
+			Common.tell(player, "&bFirst position set");
 		} else if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
 			pos = 2;
-			Common.tell(player, "&aSecond position set");
+			Common.tell(player, "&bSecond position set");
 		}
 
 		if (pos == 0)
