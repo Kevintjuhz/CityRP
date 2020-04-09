@@ -3,9 +3,16 @@ package nl.kqcreations.cityrp.api.banking;
 import nl.kqcreations.cityrp.util.JsonSerializable;
 
 import java.util.*;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
+/**
+ * Represents a data object used to keep track of a bunch of {@link BankAccount}s
+ * Currently allows for any bank account to be stored with no restriction on the owners.
+ */
 public class BankAccountData implements JsonSerializable {
 
+    public static final transient String DEFAULT = "MAIN";
     private Map<String, BankAccount> bankAccounts = new HashMap<>();
 
     public BankAccountData() {
@@ -13,6 +20,18 @@ public class BankAccountData implements JsonSerializable {
 
     public BankAccountData(String serial) {
         this.bankAccounts = JsonSerializable.gson.fromJson(serial, BankAccountData.class).bankAccounts;
+    }
+
+    public BankAccount getOrCreateMainAccount(UUID player, Bank bank) {
+        return bankAccounts.computeIfAbsent(DEFAULT, (unused) -> bank.createAccount(DEFAULT, player));
+    }
+
+    public Collection<BankAccount> getAllAccounts() {
+        return new HashSet<>(bankAccounts.values());
+    }
+
+    public Collection<BankAccount> getFilteredAccounts(Predicate<BankAccount> predicate) {
+        return bankAccounts.values().stream().filter(predicate).collect(Collectors.toSet());
     }
 
     public void addAccount(BankAccount account) {

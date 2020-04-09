@@ -5,26 +5,76 @@ import org.mineacademy.fo.Valid;
 
 import java.util.*;
 
+/**
+ * Represents a bank, an entity which stores money.
+ */
 public interface Bank extends ICreditService, JsonSerializable, TransactionExecutor {
 
     static Builder builder() {
         return new Builder();
     }
 
+    /**
+     * @return Returns the identifiable name of this bank.
+     */
     String getName();
 
+    /**
+     * Get the primary currency of this bank.
+     *
+     * @return Returns the instance of this bank's primary currency.
+     */
     Currency getPrimaryCurrency();
 
+    /**
+     * Certain banks may not be able to create credit cards,
+     * such as the {@link nl.kqcreations.cityrp.banking.Banks} CENTRAL bank.
+     *
+     * @return Returns whether or not this bank supports
+     * the creation of {@link CreditCard}s.
+     */
     boolean supportsCreditCards();
 
+    /**
+     * Checks whether a certain {@link Currency} can be converted to this bank's
+     * primary currency.
+     *
+     * @param currency The target currency to convert.
+     * @return Returns whether the currency can be converted.
+     * @see #getPrimaryCurrency()
+     */
     boolean isCurrencyConversionSupported(Currency currency);
 
+    /**
+     * Get the ratio (exchange rate) of a currency against
+     * this bank's primary {@link Currency}
+     *
+     * @param currency The currency to convert,
+     * @return Returns a double value of the exchange rate for 1 unit.
+     * @throws IllegalArgumentException Thrown if {@link #isCurrencyConversionSupported(Currency)} returned false.
+     */
     double getConversionRateFor(Currency currency) throws IllegalArgumentException;
 
-    double convertToPrimary(double sum, Currency original) throws IllegalArgumentException;
+    default double convertToPrimary(double sum, Currency original) throws IllegalArgumentException {
+        return getConversionRateFor(original) * sum;
+    }
 
+    /**
+     * Get a {@link BankAccountData} object based off an internal int ID.
+     *
+     * @param Id The internal ID of the player.
+     * @return Returns a populated optional if an account was found.
+     */
     Optional<BankAccountData> getAccountById(int Id);
 
+
+    /**
+     * Get the ID of a bank account data object.
+     *
+     * @param bankAccount The BankAccountData object.
+     * @return Returns an populated integer if this BankAccountData
+     * object was registered to this bank.
+     */
     Optional<Integer> getIdByAccount(BankAccountData bankAccount);
 
     default BankAccount getOrCreateAccountFor(String accountName, UUID player) {
@@ -219,18 +269,8 @@ public interface Bank extends ICreditService, JsonSerializable, TransactionExecu
             }
 
             @Override
-            public Transaction createTransaction(String invokingAccountName, UUID invoker, String receivingAccountName, UUID receiver, TransactionExecutor other) throws IllegalArgumentException {
-                if (!getAccountFor(invokingAccountName, invoker).isPresent()) {
-                    throw new IllegalArgumentException("No Bank Account found for invoker!");
-                }
-                return Transaction.builder()
-                        .setInvoker(invoker)
-                        .setReceiver(receiver)
-                        .setInvokingExecutor(this)
-                        .setReceivingExecutor(other)
-                        .setInvokingAccountName(invokingAccountName)
-                        .setReceivingAccountName(receivingAccountName)
-                        .buildAndClear();
+            public Transaction createTransaction(UUID invoker, CreditHolder invokingCreditHolder, CreditHolder targetCreditHolder) {
+                return new Transaction(invoker, invokingCreditHolder, targetCreditHolder);
             }
 
             @Override
@@ -239,12 +279,20 @@ public interface Bank extends ICreditService, JsonSerializable, TransactionExecu
                 if (sum < 0) {
                     return false;
                 }
-                if (transaction.getInvokingExecutor().equals(this)) {
-                    Optional<BankAccount> account = this.getAccountFor(transaction.invokingAccountName, transaction.invoker);
-                    return account.map(bankAccount -> bankAccount.withdraw(sum)).orElse(false);
-                } else if (transaction.getReceivingExecutor().equals(this)) {
-                    Optional<BankAccount> account = this.getAccountFor(transaction.receivingAccountName, transaction.receiver);
-                    return account.map(bankAccount -> bankAccount.deposit(sum)).orElse(false);
+                if (transaction.getInvokingCreditHolder().getBackingExecutor().equals(this)) {
+                    return transaction.getInvokingCreditHolder().withdraw(sum);
+                } else if (transaction.getTargetCreditHolder().getBackingExecutor().equals(this)) {
+                    return transaction.getTargetCreditHolder().deposit(sum);
+                }
+                return false;
+            }
+
+            @Override
+            public boolean canCallBack(Transaction transaction) {
+                if (transaction.getInvokingCreditHolder().getBackingExecutor().equals(this)) {
+                    return !transaction.getInvokingCreditHolder().isFrozen();
+                } else if (transaction.getTargetCreditHolder().getBackingExecutor().equals(this)) {
+                    return transaction.getTargetCreditHolder().has(transaction.getSum()) && !transaction.getTargetCreditHolder().isFrozen();
                 }
                 return false;
             }
@@ -255,12 +303,12 @@ public interface Bank extends ICreditService, JsonSerializable, TransactionExecu
                 if (sum < 0) {
                     return;
                 }
-                if (transaction.getInvokingExecutor().equals(this)) {
-                    Optional<BankAccount> account = this.getAccountFor(transaction.invokingAccountName, transaction.invoker);
-                    account.map(bankAccount -> bankAccount.deposit(sum)).orElseThrow(() -> new IllegalStateException("Account is frozen! Unable to call back transaction."));
-                } else if (transaction.getReceivingExecutor().equals(this)) {
-                    Optional<BankAccount> account = this.getAccountFor(transaction.receivingAccountName, transaction.receiver);
-                    account.map(bankAccount -> bankAccount.withdraw(sum)).orElseThrow(() -> new IllegalStateException("Account is frozen! Unable to call back transaction."));
+                if (transaction.getInvokingCreditHolder().getBackingExecutor().equals(this)) {
+                    transaction.getInvokingCreditHolder().deposit(sum);
+                } else if (transaction.getTargetCreditHolder().getBackingExecutor().equals(this)) {
+                    if (!transaction.getTargetCreditHolder().withdraw(sum)) {
+                        throw new IllegalStateException("Unable to call back transaction.");
+                    }
                 }
             }
 

@@ -10,13 +10,13 @@ import static nl.kqcreations.cityrp.PlayerCityTracker.CITY_TRACKER;
 
 public class CityChangeTask extends BukkitRunnable {
 
-	@Override
-	public void run() {
+    @Override
+    public void run() {
 
-		RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
+        RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
 
-		for (Player player : Remain.getOnlinePlayers()) {
-			CITY_TRACKER.updatePlayerCityTracker(player);
-		}
-	}
+        for (Player player : Remain.getOnlinePlayers()) {
+            CITY_TRACKER.updatePlayerCityTracker(player);
+        }
+    }
 }

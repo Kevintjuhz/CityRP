@@ -9,6 +9,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * Represents a default implementation of an ATM.
+ */
 public class DefaultATM implements ATM, JsonSerializable {
 
     private final Location location;

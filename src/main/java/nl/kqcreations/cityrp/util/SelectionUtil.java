@@ -13,67 +13,67 @@ import java.util.UUID;
 
 public enum SelectionUtil {
 
-	SELECTION_UTIL;
+    SELECTION_UTIL;
 
-	private final Map<UUID, SelectionUtil.Selection> playerSelection = new HashMap<>();
+    private final Map<UUID, SelectionUtil.Selection> playerSelection = new HashMap<>();
 
-	// ===========================================================================
-	// Plot Wand methods
-	// ===========================================================================
+    // ===========================================================================
+    // Plot Wand methods
+    // ===========================================================================
 
-	public Selection getSelection(UUID uuid) {
-		return playerSelection.get(uuid);
-	}
+    public Selection getSelection(UUID uuid) {
+        return playerSelection.get(uuid);
+    }
 
-	public void setSelectionPos(final UUID playerUuid, int position, Location location) {
-		setSelectionPos(playerUuid, position, location, true);
-	}
+    public void setSelectionPos(final UUID playerUuid, int position, Location location) {
+        setSelectionPos(playerUuid, position, location, true);
+    }
 
-	public void setSelectionPos(final UUID playerUuid, int position, Location location, boolean isExpanded) {
-		if (playerSelection.get(playerUuid) == null) {
-			playerSelection.put(playerUuid, new SelectionUtil.Selection());
-		}
+    public void setSelectionPos(final UUID playerUuid, int position, Location location, boolean isExpanded) {
+        if (playerSelection.get(playerUuid) == null) {
+            playerSelection.put(playerUuid, new SelectionUtil.Selection());
+        }
 
-		SelectionUtil.Selection selection = playerSelection.get(playerUuid);
+        SelectionUtil.Selection selection = playerSelection.get(playerUuid);
 
-		if (position == 1) {
-			if (isExpanded)
-				location.setY(1);
-			selection.setPlotWandPos1(BukkitAdapter.asBlockVector(location));
+        if (position == 1) {
+            if (isExpanded)
+                location.setY(1);
+            selection.setPlotWandPos1(BukkitAdapter.asBlockVector(location));
 
-		} else if (position == 2) {
-			if (isExpanded)
-				location.setY(256);
-			selection.setPlotWandPos2(BukkitAdapter.asBlockVector(location));
-		}
-	}
+        } else if (position == 2) {
+            if (isExpanded)
+                location.setY(256);
+            selection.setPlotWandPos2(BukkitAdapter.asBlockVector(location));
+        }
+    }
 
-	public boolean isSelectionSet(UUID playerUuid) {
-		final SelectionUtil.Selection selection = playerSelection.get(playerUuid);
-		boolean selectionSet = true;
-		if (selection.getPlotWandPos1() == null || selection.getPlotWandPos2() == null)
-			selectionSet = false;
+    public boolean isSelectionSet(UUID playerUuid) {
+        final SelectionUtil.Selection selection = playerSelection.get(playerUuid);
+        boolean selectionSet = true;
+        if (selection.getPlotWandPos1() == null || selection.getPlotWandPos2() == null)
+            selectionSet = false;
 
-		return selectionSet;
-	}
+        return selectionSet;
+    }
 
-	// ===========================================================================
-	// Custom Classes
-	// ===========================================================================
+    // ===========================================================================
+    // Custom Classes
+    // ===========================================================================
 
-	@Getter
-	@AllArgsConstructor
-	public class Selection {
+    @Getter
+    @AllArgsConstructor
+    public class Selection {
 
-		@Setter
-		private BlockVector3 plotWandPos1;
+        @Setter
+        private BlockVector3 plotWandPos1;
 
-		@Setter
-		private BlockVector3 plotWandPos2;
+        @Setter
+        private BlockVector3 plotWandPos2;
 
-		public Selection() {
+        public Selection() {
 
-		}
-	}
+        }
+    }
 
 }

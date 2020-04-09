@@ -4,6 +4,9 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.UUID;
 
+/**
+ * Represents a CreditCard.
+ */
 public interface CreditCard extends TransactionExecutor {
 
     int getNumericalID();

@@ -6,26 +6,26 @@ import org.bukkit.entity.Player;
 import org.mineacademy.fo.command.SimpleCommand;
 
 public class AddWorldCommand extends SimpleCommand {
-	public AddWorldCommand() {
-		super("addworld");
-		setDescription("");
-	}
+    public AddWorldCommand() {
+        super("addworld");
+        setDescription("");
+    }
 
-	@Override
-	protected void onCommand() {
-		checkConsole();
+    @Override
+    protected void onCommand() {
+        checkConsole();
 
-		Player player = getPlayer();
-		World world = player.getWorld();
-		String worldName = world.getName();
+        Player player = getPlayer();
+        World world = player.getWorld();
+        String worldName = world.getName();
 
-		WorldCache cache = WorldCache.getWorldCache(worldName);
-		if (cache != null) {
-			tell("&cThe world " + worldName + " is already registered");
-			return;
-		}
+        WorldCache cache = WorldCache.getWorldCache(worldName);
+        if (cache != null) {
+            tell("&cThe world " + worldName + " is already registered");
+            return;
+        }
 
-		WorldCache.addWorld(worldName);
-		tell("&bYou successfully registered world " + worldName);
-	}
+        WorldCache.addWorld(worldName);
+        tell("&bYou successfully registered world " + worldName);
+    }
 }
