@@ -1,11 +1,10 @@
-package nl.kqcreations.cityrp.banking;
+package nl.kqcreations.cityrp.api.banking;
 
 
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import nl.kqcreations.cityrp.CityRPPlugin;
-import nl.kqcreations.cityrp.api.banking.Bank;
 import nl.kqcreations.cityrp.util.JsonSerializable;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitScheduler;
@@ -16,7 +15,9 @@ import org.mineacademy.fo.database.SimpleDatabase;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -125,6 +126,17 @@ public class BankDatabase extends SimpleDatabase {
         String name = bank.getName();
         return "INSERT INTO Banks ('Name', 'JsonData', 'Class'), values(" + name + "," + json + "," + clazz + ") " +
                 "ON DUPLICATE KEY UPDATE JsonData=" + json + ", class=" + clazz;
+    }
+
+    public Optional<Bank> getByName(String name) {
+        if (!banks.containsKey(name)) {
+            return Optional.empty();
+        }
+        return Optional.of(banks.get(name));
+    }
+
+    public Collection<Bank> getRegisteredBanks() {
+        return new HashSet<>(banks.values());
     }
 
 

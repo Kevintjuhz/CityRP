@@ -59,6 +59,15 @@ public class BankAccountData implements JsonSerializable {
         return JsonSerializable.gson.toJson(this);
     }
 
+    public BankAccountData merge(BankAccountData other) {
+        BankAccountData data = new BankAccountData();
+        data.bankAccounts.putAll(this.bankAccounts);
+        if (!other.equals(this)) {
+            data.bankAccounts.putAll(other.bankAccounts);
+        }
+        return data;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
