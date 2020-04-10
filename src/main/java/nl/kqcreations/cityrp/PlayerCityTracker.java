@@ -67,7 +67,7 @@ public enum PlayerCityTracker {
 		return null;
 	}
 
-	private String getCurrentCityOfPlayer(UUID uuid) {
+	public String getCurrentCityOfPlayer(UUID uuid) {
 		return playersCurrentCity.get(uuid);
 	}
 

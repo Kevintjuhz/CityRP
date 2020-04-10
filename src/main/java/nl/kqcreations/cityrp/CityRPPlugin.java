@@ -20,6 +20,8 @@ import org.mineacademy.fo.settings.YamlStaticConfig;
 import java.util.Arrays;
 import java.util.List;
 
+import static nl.kqcreations.cityrp.PlayerCityTracker.CITY_TRACKER;
+
 public class CityRPPlugin extends SimplePlugin {
 
 	private CityChangeTask cityChangeTask;
@@ -47,6 +49,10 @@ public class CityRPPlugin extends SimplePlugin {
 		registerEvents(new PlayerListener());
 		registerEvents(new BlockListener());
 
+
+		HookManager.addPlaceholder("player_current_city", (player) -> {
+			return CITY_TRACKER.getCurrentCityOfPlayer(player.getUniqueId());
+		});
 	}
 
 	@Override
