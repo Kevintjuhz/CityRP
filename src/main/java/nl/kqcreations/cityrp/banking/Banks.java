@@ -7,7 +7,6 @@ import nl.kqcreations.cityrp.api.banking.*;
 import nl.kqcreations.cityrp.util.JsonSerializable;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.mineacademy.fo.ChatUtil;
 
@@ -16,6 +15,9 @@ import java.util.function.Supplier;
 
 public enum Banks implements Economy, Bank {
 
+    /**
+     * Represents the instance of the central bank.
+     */
     CENTRAL(Currencies.CENTRAL) {
         @Override
         public BankAccount createAccount(String name, UUID player) {
@@ -133,7 +135,7 @@ public enum Banks implements Economy, Bank {
 
     @Override
     public boolean hasAccount(String s) {
-       throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -342,25 +344,48 @@ public enum Banks implements Economy, Bank {
 
 
     @Override
-    public Transaction createTransaction(String invokingAccountName, UUID invoker, String receivingAccountName, UUID receiver, TransactionExecutor other) {
-        return Transaction.builder()
-                .setInvoker(invoker)
-                .setReceiver(receiver)
-                .setInvokingExecutor(this)
-                .setReceivingExecutor(other)
-                .setInvokingAccountName(invokingAccountName)
-                .setReceivingAccountName(receivingAccountName)
-                .buildAndClear();
+    public Transaction createTransaction(UUID invoker, CreditHolder invokingCreditHolder, CreditHolder targetCreditHolder) {
+        return null;
     }
 
     @Override
     public boolean handleTransaction(Transaction transaction) {
+        double sum = transaction.getSum();
+        if (sum < 0) {
+            return false;
+        }
+        if (transaction.getInvokingCreditHolder().getBackingExecutor().equals(this)) {
+            return transaction.getInvokingCreditHolder().withdraw(sum);
+        } else if (transaction.getTargetCreditHolder().getBackingExecutor().equals(this)) {
+            return transaction.getTargetCreditHolder().deposit(sum);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean canCallBack(Transaction transaction) {
+        if (transaction.getInvokingCreditHolder().getBackingExecutor().equals(this)) {
+            return !transaction.getInvokingCreditHolder().isFrozen();
+        } else if (transaction.getTargetCreditHolder().getBackingExecutor().equals(this)) {
+            return transaction.getTargetCreditHolder().has(transaction.getSum()) && !transaction.getTargetCreditHolder().isFrozen();
+        }
         return false;
     }
 
     @Override
     public void callBack(Transaction transaction) {
-
+        if (!canCallBack(transaction)) {
+            return;
+        }
+        double sum = transaction.getSum();
+        if (sum < 0) {
+            return;
+        }
+        if (transaction.getInvokingCreditHolder().getBackingExecutor().equals(this)) {
+            assert transaction.getInvokingCreditHolder().deposit(sum);
+        } else {
+            assert !transaction.getTargetCreditHolder().getBackingExecutor().equals(this) || transaction.getTargetCreditHolder().withdraw(sum);
+        }
     }
 
     @Override
@@ -368,7 +393,11 @@ public enum Banks implements Economy, Bank {
         return JsonSerializable.gson.toJson(this);
     }
 
-    private static class CreditCardImpl implements CreditCard {
+
+    /**
+     * Basic implementaion of a {@link CreditCard} object.
+     */
+    public static class CreditCardImpl implements CreditCard {
 
         private final Supplier<ItemStack> supplier;
         private final String name;
@@ -428,62 +457,32 @@ public enum Banks implements Economy, Bank {
         }
 
         @Override
-        public Transaction createTransaction(String invokingAccountName, UUID invoker, String receivingAccountName, UUID receiver, TransactionExecutor other) {
-            return Transaction.builder()
-                    .setInvoker(invoker)
-                    .setReceiver(receiver)
-                    .setInvokingExecutor(this)
-                    .setReceivingExecutor(other)
-                    .setInvokingAccountName(invokingAccountName)
-                    .setReceivingAccountName(receivingAccountName)
-                    .buildAndClear();
+        public Transaction createTransaction(UUID invoker, CreditHolder invokingCreditHolder, CreditHolder targetCreditHolder) {
+            return bank.createTransaction(invoker, invokingCreditHolder, targetCreditHolder);
         }
 
         @Override
         public boolean handleTransaction(Transaction transaction) {
             double sum = transaction.getSum();
             if (sum < 0) {
-                throw new IllegalArgumentException("Invalid sum!");
+                return false;
             }
-            if (transaction.getInvokingExecutor().equals(this)) {
-                Optional<BankAccount> optionalBankAccount = bank.getAccountFor(transaction.invokingAccountName, transaction.invoker);
-                if (!optionalBankAccount.isPresent()) {
-                    return false;
-                }
-                BankAccount account = optionalBankAccount.get();
-                return account.withdraw(sum);
-            } else if (transaction.getReceivingExecutor().equals(this)) {
-                Optional<BankAccount> optionalBankAccount = bank.getAccountFor(transaction.receivingAccountName, transaction.receiver);
-                if (!optionalBankAccount.isPresent()) {
-                    return false;
-                }
-                BankAccount account = optionalBankAccount.get();
-                return account.deposit(sum);
+            if (transaction.getInvokingCreditHolder().getBackingExecutor().equals(this)) {
+                return transaction.getInvokingCreditHolder().withdraw(sum);
+            } else if (transaction.getTargetCreditHolder().getBackingExecutor().equals(this)) {
+                return transaction.getTargetCreditHolder().deposit(sum);
             }
             return false;
         }
 
         @Override
-        public void callBack(Transaction transaction) {
-            if (transaction.getInvokingExecutor().equals(this)) {
-                Optional<BankAccount> optionalBankAccount = bank.getAccountFor(transaction.invokingAccountName, transaction.invoker);
-                if (!optionalBankAccount.isPresent()) {
-                    throw new IllegalStateException("Unable to rollback changes! Original Bank Account not found!");
-                }
-                BankAccount account = optionalBankAccount.get();
-                if (!account.deposit(transaction.getSum())) {
-                    throw new IllegalStateException("Failed to deposit withdrawn sum!");
-                }
-            } else if (transaction.getReceivingExecutor().equals(this)) {
-                Optional<BankAccount> optionalBankAccount = bank.getAccountFor(transaction.receivingAccountName, transaction.receiver);
-                if (!optionalBankAccount.isPresent()) {
-                    throw new IllegalStateException("Unable to rollback changes! Original Bank Account not found!");
-                }
-                BankAccount account = optionalBankAccount.get();
-                if (!account.withdraw(transaction.getSum())) {
-                    throw new IllegalStateException("Failed to withdraw deposited sum!");
-                }
-            }
+        public void callBack(Transaction transaction) throws IllegalArgumentException {
+            bank.callBack(transaction);
+        }
+
+        @Override
+        public boolean canCallBack(Transaction transaction) {
+            return bank.canCallBack(transaction);
         }
     }
-    }
+}

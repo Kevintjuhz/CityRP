@@ -1,13 +1,15 @@
 package nl.kqcreations.cityrp.api.banking;
 
 import nl.kqcreations.cityrp.util.JsonSerializable;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
+/**
+ * Base Bank Account, has almost all functionality implemented.
+ */
 public abstract class AbstractBankAccount implements BankAccount, JsonSerializable {
 
     private final String name;
@@ -73,7 +75,7 @@ public abstract class AbstractBankAccount implements BankAccount, JsonSerializab
     }
 
     @Override
-    public Bank getBank() {
+    public Bank getBackingExecutor() {
         return bank;
     }
 
@@ -128,11 +130,6 @@ public abstract class AbstractBankAccount implements BankAccount, JsonSerializab
     @Override
     public Map<UUID, AccessLevel> getRegisteredPeers() {
         return accessLevelMap;
-    }
-
-    @Override
-    public @NotNull Map<String, Object> serialize() {
-        throw new UnsupportedOperationException();
     }
 
     public String toJson() {

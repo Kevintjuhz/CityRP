@@ -1,34 +1,30 @@
 package nl.kqcreations.cityrp.api.banking;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import net.milkbowl.vault.economy.EconomyResponse;
+
 import java.util.Objects;
 import java.util.UUID;
 
+/**
+ * Represents a transaction between two {@link CreditHolder}s.
+ */
 public class Transaction {
 
-    public final UUID invoker, receiver;
-    public final String invokingAccountName, receivingAccountName;
-    private TransactionExecutor invokingExecutor, receivingExecutor;
+    @Getter(AccessLevel.PUBLIC)
+    public final UUID invoker;
+
+    @Getter(AccessLevel.PUBLIC)
+    private final CreditHolder invokingCreditHolder, targetCreditHolder;
+
+    @Getter(AccessLevel.PUBLIC)
     private double sum;
 
-    private Transaction(String invokingAccountName, String receivingAccountName, UUID invoker, UUID reciever, TransactionExecutor invokingExecutor, TransactionExecutor receivingExecutor) {
+    public Transaction(UUID invoker, CreditHolder invokingCreditHolder, CreditHolder targetCreditHolder) {
         this.invoker = Objects.requireNonNull(invoker);
-        this.receiver = Objects.requireNonNull(reciever);
-        this.invokingAccountName = Objects.requireNonNull(invokingAccountName);
-        this.receivingAccountName = Objects.requireNonNull(receivingAccountName);
-        this.invokingExecutor = Objects.requireNonNull(invokingExecutor);
-        this.receivingExecutor = Objects.requireNonNull(receivingExecutor);
-    }
-
-    public TransactionExecutor getInvokingExecutor() {
-        return invokingExecutor;
-    }
-
-    public TransactionExecutor getReceivingExecutor() {
-        return receivingExecutor;
-    }
-
-    public double getSum() {
-        return sum;
+        this.invokingCreditHolder = Objects.requireNonNull(invokingCreditHolder);
+        this.targetCreditHolder = Objects.requireNonNull(targetCreditHolder);
     }
 
     public Transaction setSum(double sum) {
@@ -44,79 +40,24 @@ public class Transaction {
      * @throws IllegalStateException Thrown if an account was frozen whilst a transaction was in progress.
      */
     public boolean execute() throws IllegalStateException {
-        if (!invokingExecutor.handleTransaction(this)) {
+        if (!invokingCreditHolder.getBackingExecutor().handleTransaction(this)) {
             return false;
         }
-        if (!receivingExecutor.handleTransaction(this)) {
-            invokingExecutor.callBack(this);
+        if (!targetCreditHolder.getBackingExecutor().handleTransaction(this)) {
+            invokingCreditHolder.getBackingExecutor().callBack(this);
             return false;
         }
         return true;
     }
 
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    public static final class Builder {
-
-        public UUID invoker, receiver;
-        public String invokingAccountName, receivingAccountName;
-        private TransactionExecutor invokingExecutor, receivingExecutor;
-        private double sum;
-
-
-        public Builder setInvoker(UUID invoker) {
-            this.invoker = invoker;
-            return this;
-        }
-
-        public Builder setReceiver(UUID receiver) {
-            this.receiver = receiver;
-            return this;
-        }
-
-        public Builder setInvokingAccountName(String invokingAccountName) {
-            this.invokingAccountName = invokingAccountName;
-            return this;
-        }
-
-        public Builder setReceivingAccountName(String receivingAccountName) {
-            this.receivingAccountName = receivingAccountName;
-            return this;
-        }
-
-        public Builder setInvokingExecutor(TransactionExecutor executor) {
-            this.invokingExecutor = executor;
-            return this;
-        }
-
-        public Builder setReceivingExecutor(TransactionExecutor executor) {
-            this.receivingExecutor = executor;
-            return this;
-        }
-
-        public Builder setSum(double sum) {
-            this.sum = sum;
-            return this;
-        }
-
-        public Builder clear() {
-            sum = 0;
-            invoker = null;
-            receiver = null;
-            invokingExecutor = null;
-            receivingExecutor = null;
-            receivingAccountName = null;
-            invokingAccountName = null;
-            return this;
-        }
-
-        public Transaction buildAndClear() {
-            Transaction ret = new Transaction(invokingAccountName, receivingAccountName, invoker, receiver, invokingExecutor, receivingExecutor);
-            clear();
-            return ret;
-        }
-
+    /**
+     * Execute and create an EconomyResponse.
+     *
+     * @return Returns an economy response representing the state of the transaction.
+     */
+    public EconomyResponse executeVault() {
+        boolean success = execute(); //Try to execute the transaction.
+        return new EconomyResponse(sum, invokingCreditHolder.getCurrentBalance(), success ? EconomyResponse.ResponseType.SUCCESS : EconomyResponse.ResponseType.FAILURE,
+                "&c&l (!) Transaction Failed."); //TODO Make config toggleable.
     }
 }

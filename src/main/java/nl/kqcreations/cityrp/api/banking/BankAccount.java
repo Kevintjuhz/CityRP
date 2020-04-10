@@ -1,18 +1,15 @@
 package nl.kqcreations.cityrp.api.banking;
 
-import org.bukkit.configuration.serialization.ConfigurationSerializable;
-
 import java.util.Map;
 import java.util.UUID;
 
 /**
  * Represents a bank account which a player or organisation can own.
  */
-public interface BankAccount extends ConfigurationSerializable {
+public interface BankAccount extends CreditHolder {
 
-    Bank getBank();
-
-    String getName();
+    @Override
+    Bank getBackingExecutor();
 
     /**
      * The creator of this account.
@@ -20,24 +17,6 @@ public interface BankAccount extends ConfigurationSerializable {
      * @return Returns the UUID of the player who created this account.
      */
     UUID getOpener();
-
-    double getCurrentBalance();
-
-    /**
-     * Withdraw a sum from this account.
-     *
-     * @param targetSum The sum to withdraw.
-     * @return Returns whether the operation was successful, true if enough funds are in the account.
-     */
-    boolean withdraw(double targetSum);
-
-    /**
-     * Deposit a sum from to account.
-     *
-     * @param targetSum The amount to deposit.
-     * @return Returns whether the operation was successful.
-     */
-    boolean deposit(double targetSum);
 
     /**
      * Get a map representing player's access level to this account.
@@ -60,12 +39,6 @@ public interface BankAccount extends ConfigurationSerializable {
         return true;
     }
     */
-
-    void setBalance(double balance);
-
-    boolean isFrozen();
-
-    void setFrozen(boolean frozen);
 
     AccessLevel getAccessOf(UUID player);
 

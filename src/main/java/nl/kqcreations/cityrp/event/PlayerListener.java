@@ -37,5 +37,4 @@ public class PlayerListener implements Listener {
 		CITY_TRACKER.updatePlayerCityTracker(player);
 
 	}
-
 }

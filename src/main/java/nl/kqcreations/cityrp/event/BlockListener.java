@@ -11,18 +11,18 @@ import org.mineacademy.fo.remain.CompMaterial;
 
 public class BlockListener implements Listener {
 
-	@EventHandler
-	public void onBlockInteract(PlayerInteractEvent event) {
-		Block block = event.getClickedBlock();
+    @EventHandler
+    public void onBlockInteract(PlayerInteractEvent event) {
+        Block block = event.getClickedBlock();
 
-		if (event.getAction() != Action.RIGHT_CLICK_BLOCK)
-			return;
+        if (event.getAction() != Action.RIGHT_CLICK_BLOCK)
+            return;
 
-		if (!event.getClickedBlock().getType().equals(CompMaterial.RED_SANDSTONE_STAIRS.getMaterial()))
-			return;
+        if (!event.getClickedBlock().getType().equals(CompMaterial.RED_SANDSTONE_STAIRS.getMaterial()))
+            return;
 
-		Player player = event.getPlayer();
-		new ATMMenu().displayTo(player);
-	}
+        Player player = event.getPlayer();
+        new ATMMenu().displayTo(player);
+    }
 
 }
