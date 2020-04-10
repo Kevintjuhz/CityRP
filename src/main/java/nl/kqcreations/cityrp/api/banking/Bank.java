@@ -81,6 +81,8 @@ public interface Bank extends ICreditService, JsonSerializable, TransactionExecu
         return getAccountFor(accountName, player).orElse(createAccount(accountName, player));
     }
 
+    BankAccountData getAccountsFor(UUID player);
+
     Optional<BankAccount> getAccountFor(String name, UUID player);
 
     BankAccount createAccount(String name, UUID player);
@@ -242,6 +244,15 @@ public interface Bank extends ICreditService, JsonSerializable, TransactionExecu
                     }
                 }
                 return Optional.empty();
+            }
+
+            @Override
+            public BankAccountData getAccountsFor(UUID player) {
+                if (!idMap.containsKey(player)) {
+                    return new BankAccountData();
+                }
+                int id = idMap.get(player);
+                return accountMap.get(id);
             }
 
             @Override

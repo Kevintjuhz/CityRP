@@ -1,7 +1,7 @@
 name: CityRP
 version: ${project.version}
 main: ${main.class}
-author: Kevintjuhz
+authors: [Kevintjuhz, Andrewandy]
 api-version: 1.13
 load: STARTUP
 softdepend: [WorldGuard]

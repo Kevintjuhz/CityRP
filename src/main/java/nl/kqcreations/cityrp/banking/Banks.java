@@ -342,10 +342,22 @@ public enum Banks implements Economy, Bank {
         return Optional.empty();
     }
 
+    @Override
+    public BankAccountData getAccountsFor(UUID player) {
+        if (!idMap.containsKey(player)) {
+            return new BankAccountData();
+        }
+        int id = idMap.get(player);
+        return accountMap.get(id);
+    }
+
 
     @Override
     public Transaction createTransaction(UUID invoker, CreditHolder invokingCreditHolder, CreditHolder targetCreditHolder) {
-        return null;
+        if (!invokingCreditHolder.getBackingExecutor().equals(this)) {
+            throw new IllegalArgumentException();
+        }
+        return new Transaction(invoker, invokingCreditHolder, targetCreditHolder);
     }
 
     @Override
