@@ -98,11 +98,19 @@
     -->
     <dependencies>
 
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongo-java-driver</artifactId>
+            <version>3.12.3</version>
+            <scope>compile</scope>
+        </dependency>
+
         <!--
             Import the Spigot API since it's necessary for our plugin
 
             Make sure you change the version to the latest version you want to use for your plugin.
         -->
+
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
@@ -175,7 +183,7 @@
                     You want to check and update the latest version periodically from
                     https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-shade-plugin
                 -->
-                <version>3.2.1</version>
+                <version>3.2.2</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -194,6 +202,7 @@
                             <finalName>${project.name}-${project.version}</finalName>
                             <artifactSet>
                                 <includes>
+                                    <include>org.mongodb:mongo-java-driver</include>
                                     <include>org.mineacademy:Game*</include>
                                     <include>org.mineacademy:Foundation*</include>
                                 </includes>

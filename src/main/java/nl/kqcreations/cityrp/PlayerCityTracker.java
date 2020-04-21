@@ -1,7 +1,7 @@
 package nl.kqcreations.cityrp;
 
-import nl.kqcreations.cityrp.cache.CityCache;
-import nl.kqcreations.cityrp.cache.WorldCache;
+import nl.kqcreations.cityrp.data.CityData;
+import nl.kqcreations.cityrp.data.WorldData;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -13,17 +13,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public enum PlayerCityTracker {
+public class PlayerCityTracker {
 
-	CITY_TRACKER;
+	private static final Map<UUID, String> playersCurrentCity = new HashMap<>();
 
-	private final Map<UUID, String> playersCurrentCity = new HashMap<>();
-
-	public void updatePlayerCityTracker(Player player) {
+	public static void updatePlayerCityTracker(Player player) {
 		final World world = player.getWorld();
 		final String worldName = world.getName();
 
-		WorldCache cache = WorldCache.getWorldCache(worldName);
+		WorldData cache = WorldData.getWorldCache(worldName);
 
 		if (cache == null)
 			return;
@@ -51,14 +49,14 @@ public enum PlayerCityTracker {
 		}
 	}
 
-	private boolean containsPlayer(UUID uuid) {
+	private static boolean containsPlayer(UUID uuid) {
 		return playersCurrentCity.containsKey(uuid);
 	}
 
-	private String getPlayerCurrentRegion(Location location) {
+	private static String getPlayerCurrentRegion(Location location) {
 		List<String> regions = HookManager.getRegions(location);
 		for (String region : regions) {
-			CityCache cache = CityCache.getCityCache(region);
+			CityData cache = CityData.getCityCache(region);
 			if (cache != null) {
 				return region;
 			}
@@ -67,26 +65,26 @@ public enum PlayerCityTracker {
 		return null;
 	}
 
-	public String getCurrentCityOfPlayer(UUID uuid) {
+	public static String getCurrentCityOfPlayer(UUID uuid) {
 		return playersCurrentCity.get(uuid);
 	}
 
-	private void setCurrentPlayerCity(UUID uuid) {
+	private static void setCurrentPlayerCity(UUID uuid) {
 		setCurrentPlayerCity(uuid, "__global__");
 	}
 
-	private void setCurrentPlayerCity(UUID uuid, String city) {
+	private static void setCurrentPlayerCity(UUID uuid, String city) {
 		playersCurrentCity.remove(uuid);
 		playersCurrentCity.put(uuid, city);
 	}
 
-	private void sendPlayerTitle(Player player) {
+	private static void sendPlayerTitle(Player player) {
 		String city = playersCurrentCity.get(player.getUniqueId());
 
 		if (city.equals("__global__")) {
 			Remain.sendTitle(player, "&cWelcome to", "&cNO MANS LAND".toUpperCase());
 		} else {
-			CityCache cache = CityCache.getCityCache(city);
+			CityData cache = CityData.getCityCache(city);
 			String color = cache.getColor();
 			Remain.sendTitle(player, color + "Welcome to", color + cache.getTitle().toUpperCase());
 		}

@@ -11,69 +11,91 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public enum SelectionUtil {
+public class SelectionUtil {
+	private static final Map<UUID, SelectionUtil.Selection> playerSelection = new HashMap<>();
 
-    SELECTION_UTIL;
+	// ===========================================================================
+	// Plot Wand methods
+	// ===========================================================================
 
-    private final Map<UUID, SelectionUtil.Selection> playerSelection = new HashMap<>();
+	/**
+	 * Gets the selection from a given player by their uuid
+	 *
+	 * @param uuid
+	 * @return a Selection object
+	 */
+	public static Selection getSelection(UUID uuid) {
+		return playerSelection.get(uuid);
+	}
 
-    // ===========================================================================
-    // Plot Wand methods
-    // ===========================================================================
+	/**
+	 * Sets a selection position for a player.
+	 *
+	 * @param playerUuid
+	 * @param position
+	 * @param location
+	 */
+	public static void setSelectionPos(final UUID playerUuid, int position, Location location) {
+		setSelectionPos(playerUuid, position, location, true);
+	}
 
-    public Selection getSelection(UUID uuid) {
-        return playerSelection.get(uuid);
-    }
+	/**
+	 * Sets a selection position for a player.
+	 *
+	 * @param playerUuid
+	 * @param position
+	 * @param location
+	 * @param isExpanded
+	 */
+	public static void setSelectionPos(final UUID playerUuid, int position, Location location, boolean isExpanded) {
+		if (playerSelection.get(playerUuid) == null) {
+			playerSelection.put(playerUuid, new SelectionUtil.Selection());
+		}
 
-    public void setSelectionPos(final UUID playerUuid, int position, Location location) {
-        setSelectionPos(playerUuid, position, location, true);
-    }
+		SelectionUtil.Selection selection = playerSelection.get(playerUuid);
 
-    public void setSelectionPos(final UUID playerUuid, int position, Location location, boolean isExpanded) {
-        if (playerSelection.get(playerUuid) == null) {
-            playerSelection.put(playerUuid, new SelectionUtil.Selection());
-        }
+		if (position == 1) {
+			if (isExpanded)
+				location.setY(1);
+			selection.setPlotWandPos1(BukkitAdapter.asBlockVector(location));
 
-        SelectionUtil.Selection selection = playerSelection.get(playerUuid);
+		} else if (position == 2) {
+			if (isExpanded)
+				location.setY(256);
+			selection.setPlotWandPos2(BukkitAdapter.asBlockVector(location));
+		}
+	}
 
-        if (position == 1) {
-            if (isExpanded)
-                location.setY(1);
-            selection.setPlotWandPos1(BukkitAdapter.asBlockVector(location));
+	/**
+	 * Checks if a selection is set for that player
+	 *
+	 * @param playerUuid
+	 * @return
+	 */
+	public static boolean isSelectionSet(UUID playerUuid) {
+		final SelectionUtil.Selection selection = playerSelection.get(playerUuid);
+		boolean selectionSet = true;
+		if (selection.getPlotWandPos1() == null || selection.getPlotWandPos2() == null)
+			selectionSet = false;
 
-        } else if (position == 2) {
-            if (isExpanded)
-                location.setY(256);
-            selection.setPlotWandPos2(BukkitAdapter.asBlockVector(location));
-        }
-    }
+		return selectionSet;
+	}
 
-    public boolean isSelectionSet(UUID playerUuid) {
-        final SelectionUtil.Selection selection = playerSelection.get(playerUuid);
-        boolean selectionSet = true;
-        if (selection.getPlotWandPos1() == null || selection.getPlotWandPos2() == null)
-            selectionSet = false;
+	// ===========================================================================
+	// Custom Classes
+	// ===========================================================================
 
-        return selectionSet;
-    }
+	// Selection Class containing two BlockVector3 positions
+	@Getter
+	@Setter
+	@AllArgsConstructor
+	public static class Selection {
 
-    // ===========================================================================
-    // Custom Classes
-    // ===========================================================================
+		private BlockVector3 plotWandPos1;
+		private BlockVector3 plotWandPos2;
 
-    @Getter
-    @AllArgsConstructor
-    public class Selection {
-
-        @Setter
-        private BlockVector3 plotWandPos1;
-
-        @Setter
-        private BlockVector3 plotWandPos2;
-
-        public Selection() {
-
-        }
-    }
+		public Selection() {
+		}
+	}
 
 }

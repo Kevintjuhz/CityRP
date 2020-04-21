@@ -1,7 +1,7 @@
 package nl.kqcreations.cityrp.command.city;
 
-import nl.kqcreations.cityrp.cache.CityCache;
-import nl.kqcreations.cityrp.cache.WorldCache;
+import nl.kqcreations.cityrp.data.CityData;
+import nl.kqcreations.cityrp.data.WorldData;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -11,36 +11,36 @@ import org.mineacademy.fo.model.HookManager;
 
 public class AddCityCommand extends SimpleSubCommand {
 
-    protected AddCityCommand(SimpleCommandGroup parent) {
-        super(parent, "add");
+	protected AddCityCommand(SimpleCommandGroup parent) {
+		super(parent, "add");
 
-        setUsage("<name> [wg_region]");
-        setMinArguments(1);
-    }
+		setUsage("<name> [wg_region]");
+		setMinArguments(1);
+	}
 
-    @Override
-    protected void onCommand() {
-        checkConsole();
+	@Override
+	protected void onCommand() {
+		checkConsole();
 
-        final Player player = getPlayer();
-        final World world = player.getWorld();
-        final String worldName = world.getName();
+		final Player player = getPlayer();
+		final World world = player.getWorld();
+		final String worldName = world.getName();
 
-        if (WorldCache.getWorldCache(worldName) == null) {
-            tell("&cThis world is not registered as a cityrp world",
-                    "&cType /addworld to add this world");
-            return;
-        }
+		if (WorldData.getWorldCache(worldName) == null) {
+			tell("&cThis world is not registered as a cityrp world",
+					"&cType /addworld to add this world");
+			return;
+		}
 
-        final String cityName = args[0].toLowerCase();
-        final Location location = player.getLocation();
+		final String cityName = args[0].toLowerCase();
+		final Location location = player.getLocation();
 
-        if (HookManager.getRegions(location) == null) {
-            tell("&cYou are not standing in any region");
-            return;
-        }
+		if (HookManager.getRegions(location) == null) {
+			tell("&cYou are not standing in any region");
+			return;
+		}
 
-        CityCache.addCity(HookManager.getRegions(location).get(0), cityName);
-        tell("&bSuccessfully added the " + cityName.toUpperCase());
-    }
+		CityData.addCity(HookManager.getRegions(location).get(0), cityName);
+		tell("&bSuccessfully added the " + cityName.toUpperCase());
+	}
 }

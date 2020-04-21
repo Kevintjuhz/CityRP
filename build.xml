@@ -41,6 +41,9 @@
                 just make sure you have Foundation in the same workspace folder where you have this plugin.
             -->
 
+            <zipgroupfileset dir="${user.home}/.m2/repository/org/mongodb/mongo-java-driver/3.12.3/"
+                             includes="**/*mongo-java-driver-3.12.3.jar"/>
+
             <zipgroupfileset dir="${user.home}/.m2/repository/com/github/kangarko/Foundation/${foundation.version}/"
                              includes="**/*${foundation.version}.jar"/>
             <!-- <fileset dir="../Foundation/target/classes" /> -->

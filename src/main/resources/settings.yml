@@ -1,10 +1,26 @@
 Plots:
   Default_Square_Meter_Price: 200
 
+PlayerData:
+  Default_Rank: "Player"
+  Default_Job: "Homeless"
+  Default_City_Color: "&7"
+
+
 Cities:
   Default_Laws: "http://kqcreations.nl"
   Default_Color: "&b"
 
+Database:
+  Name: "cityrp"
+  Host: localhost
+  Port: 27017
+
+
+Starting_Balance: 10000
+Valid_Money_Note: "Official CityRP banknote with a value of"
+
+Allow_Crafting: false
 
 Prefix: "&bCityRP &3//"
 Log_Lag_Over_Milis: 100

@@ -3,5 +3,4 @@ version: ${project.version}
 main: ${main.class}
 authors: [Kevintjuhz, Andrewandy]
 api-version: 1.13
-load: STARTUP
-softdepend: [WorldGuard]
+depend: [WorldGuard, PlaceholderAPI, HolographicDisplays]

@@ -1,15 +1,33 @@
-package nl.kqcreations.cityrp.event;
+package nl.kqcreations.cityrp.listener;
 
-import nl.kqcreations.cityrp.cache.WorldCache;
+import nl.kqcreations.cityrp.PlayerCityTracker;
+import nl.kqcreations.cityrp.data.PlayerData;
+import nl.kqcreations.cityrp.data.WorldData;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.mineacademy.fo.Common;
 
-import static nl.kqcreations.cityrp.PlayerCityTracker.CITY_TRACKER;
+import java.util.UUID;
 
 public class PlayerListener implements Listener {
+
+	@EventHandler
+	public void onPlayerLogin(AsyncPlayerPreLoginEvent event) {
+		UUID uuid = event.getUniqueId();
+
+		PlayerData.onPlayerLogin(uuid);
+	}
+
+	@EventHandler
+	public void onPlayerLeave(PlayerQuitEvent event) {
+		UUID uuid = event.getPlayer().getUniqueId();
+
+		Common.runLaterAsync(() -> PlayerData.onPlayerLeave(uuid));
+	}
 
 	@EventHandler
 	public void onJoin(PlayerJoinEvent event) {
@@ -22,7 +40,7 @@ public class PlayerListener implements Listener {
 		 * */
 		if (player.isOp()) {
 			Common.logFramed("Player is op");
-			if (!WorldCache.isAnyWorldRegistered()) {
+			if (!WorldData.isAnyWorldRegistered()) {
 				Common.tellLater(30, player,
 						"&3" + Common.chatLineSmooth(),
 						"   ",
@@ -34,7 +52,7 @@ public class PlayerListener implements Listener {
 			}
 		}
 
-		CITY_TRACKER.updatePlayerCityTracker(player);
+		PlayerCityTracker.updatePlayerCityTracker(player);
 
 	}
 }
