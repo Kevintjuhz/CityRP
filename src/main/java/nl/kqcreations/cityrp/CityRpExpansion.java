@@ -35,26 +35,25 @@ public class CityRpExpansion extends PlaceholderExpansion {
 
 	@Override
 	public String getAuthor() {
-		return "Kevintjuhz";
+		return plugin.getDescription().getAuthors().toString();
 	}
 
 	@Override
 	public String getVersion() {
-		return "1.0.0";
+		return plugin.getDescription().getVersion();
 	}
 
 	@Override
-	public String onPlaceholderRequest(Player p, String params) {
-
-		if (p == null)
-			return "";
-
-		switch (params) {
-			case "current_city":
-				return PlayerCityTracker.getCurrentCityOfPlayer(p.getUniqueId());
+	public String onPlaceholderRequest(Player player, String identifier) {
+		// %cityrp_current_city%
+		if (identifier.equals("current_city")) {
+			return PlayerCityTracker.getCurrentCityOfPlayer(player.getUniqueId());
+		}
+		if (identifier.equals("test")) {
+			return "TEST";
 		}
 
-		return "";
+		return null;
 	}
 
 }

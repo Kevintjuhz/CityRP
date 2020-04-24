@@ -1,8 +1,8 @@
 package nl.kqcreations.cityrp.command.bank;
 
-import nl.kqcreations.cityrp.data.BankAccount;
-import nl.kqcreations.cityrp.data.BankAccountData;
 import nl.kqcreations.cityrp.data.PlayerData;
+import nl.kqcreations.cityrp.data.bank.BankAccount;
+import nl.kqcreations.cityrp.data.bank.BankAccountData;
 import nl.kqcreations.cityrp.event.BankAccountAddUserEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;

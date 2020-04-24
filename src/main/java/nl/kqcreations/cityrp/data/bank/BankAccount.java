@@ -1,11 +1,10 @@
-package nl.kqcreations.cityrp.data;
+package nl.kqcreations.cityrp.data.bank;
 
 import lombok.Getter;
 import lombok.Setter;
+import nl.kqcreations.cityrp.data.bank.transaction.Transaction;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Getter
 public class BankAccount {
@@ -29,6 +28,9 @@ public class BankAccount {
 
 	@Setter
 	private Map<UUID, AccessLevel> users = new HashMap<>();
+
+	@Setter()
+	private List<Transaction> transactions = new ArrayList<>();
 
 	public BankAccount(int accountId, UUID uuid) {
 		this.accountId = accountId;
@@ -57,9 +59,21 @@ public class BankAccount {
 		this.name = Integer.toString(accountId);
 	}
 
-	public AccessLevel getUserAccessLevel(UUID playeruuid) {
-		return users.get(playeruuid);
+	// --------------------------------------------
+	// Transaction actions
+	// --------------------------------------------
+
+	public void addTransaction(Transaction transaction) {
+		transactions.add(transaction);
 	}
+
+	public void removeTransaction(Transaction transaction) {
+		transactions.remove(transaction);
+	}
+
+	// --------------------------------------------
+	// Balance actions
+	// --------------------------------------------
 
 	/**
 	 * Adds balance to the given bankaccount
@@ -76,6 +90,20 @@ public class BankAccount {
 		return true;
 	}
 
+	// --------------------------------------------
+	// User actions
+	// --------------------------------------------
+
+	/**
+	 * Gets the accesslevel of the given user.
+	 *
+	 * @param playeruuid
+	 * @return
+	 */
+	public AccessLevel getUserAccessLevel(UUID playeruuid) {
+		return users.get(playeruuid);
+	}
+
 	/**
 	 * Adds a user to the given bankaccount
 	 *
@@ -90,7 +118,6 @@ public class BankAccount {
 		users.computeIfAbsent(playeruuid, (uuid) -> users.put(playeruuid, level));
 		return true;
 	}
-
 
 	/**
 	 * Promotes a user his accesslevel for the given bankaccount
@@ -148,6 +175,10 @@ public class BankAccount {
 		users.replace(playeruuid, level.getPrevious());
 		return true;
 	}
+
+	// --------------------------------------------
+	// Enums
+	// --------------------------------------------
 
 	public enum AccessLevel {
 		VIEW, MANAGE, OWNER;

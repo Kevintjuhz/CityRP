@@ -8,11 +8,11 @@ import java.util.Map;
 
 public interface JsonSerializable {
 
-    final Type BukkitSerialMapType = new TypeToken<Map<String, Object>>() {
-    }.getType();
+	final Type BukkitSerialMapType = new TypeToken<Map<String, Object>>() {
+	}.getType();
 
 
-    Gson gson = new Gson();
+	Gson gson = new Gson();
 
-    String toJson();
+	String toJson();
 }

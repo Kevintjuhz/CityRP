@@ -1,7 +1,7 @@
 package nl.kqcreations.cityrp.command.bank;
 
-import nl.kqcreations.cityrp.data.BankAccount;
-import nl.kqcreations.cityrp.data.BankAccountData;
+import nl.kqcreations.cityrp.data.bank.BankAccount;
+import nl.kqcreations.cityrp.data.bank.BankAccountData;
 import org.bukkit.entity.Player;
 import org.mineacademy.fo.Common;
 import org.mineacademy.fo.Valid;

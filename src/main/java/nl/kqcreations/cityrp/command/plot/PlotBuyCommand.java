@@ -1,7 +1,7 @@
 package nl.kqcreations.cityrp.command.plot;
 
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
-import nl.kqcreations.cityrp.data.BankAccount;
+import nl.kqcreations.cityrp.data.bank.BankAccount;
 import nl.kqcreations.cityrp.data.PlayerData;
 import nl.kqcreations.cityrp.util.PlotUtil;
 import org.bukkit.entity.Player;

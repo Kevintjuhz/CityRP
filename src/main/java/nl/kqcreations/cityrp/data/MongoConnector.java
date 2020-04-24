@@ -15,13 +15,15 @@ public class MongoConnector {
 	@Getter
 	private static final MongoConnector instance = new MongoConnector();
 
-	private MongoClient mongoClient;
 	private MongoDatabase database;
 
+	/**
+	 * Connects to a mongoClient, selects a database and stores it.
+	 */
 	public void connect() {
 
 		try {
-			mongoClient = MongoClients.create();
+			MongoClient mongoClient = MongoClients.create();
 			database = mongoClient.getDatabase("cityrp");
 			Common.log("&cSuccesfully connected to the database named cityrp");
 		} catch (IllegalArgumentException e) {
@@ -30,6 +32,12 @@ public class MongoConnector {
 
 	}
 
+	/**
+	 * Returns a collection from a mongodb
+	 *
+	 * @param name
+	 * @return
+	 */
 	public MongoCollection getCollection(String name) {
 		return database.getCollection(name);
 	}

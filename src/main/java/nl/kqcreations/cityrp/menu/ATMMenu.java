@@ -1,9 +1,11 @@
 package nl.kqcreations.cityrp.menu;
 
 import nl.kqcreations.cityrp.MoneyItem;
-import nl.kqcreations.cityrp.data.BankAccount;
 import nl.kqcreations.cityrp.data.PlayerData;
-import nl.kqcreations.cityrp.util.MoneyNoteUtil;
+import nl.kqcreations.cityrp.data.bank.BankAccount;
+import nl.kqcreations.cityrp.data.bank.transaction.Transaction;
+import nl.kqcreations.cityrp.data.bank.transaction.TransactionType;
+import nl.kqcreations.cityrp.util.MoneyItemsUtil;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
@@ -18,7 +20,7 @@ import org.mineacademy.fo.menu.button.ButtonMenu;
 import org.mineacademy.fo.menu.model.ItemCreator;
 import org.mineacademy.fo.remain.CompMaterial;
 
-import java.util.*;
+import java.util.Objects;
 
 // Main menu, where you can select whether you want to deposit or withdraw
 public class ATMMenu extends Menu {
@@ -27,12 +29,10 @@ public class ATMMenu extends Menu {
 	private final Button privateAccountsButton;
 	private final Button businessAccountsButton;
 
-	private final Player player;
 	private PlayerData data;
 	private BankAccount bankAccount;
 
 	public ATMMenu(Player player) {
-		this.player = player;
 		data = PlayerData.getPlayerData(player.getUniqueId());
 
 		setTitle("&5ATM - Select a account type");
@@ -85,7 +85,7 @@ public class ATMMenu extends Menu {
 			}
 
 			ATMMenu.this.bankAccount = bankAccount;
-			new AccountSelectActionMenu(bankAccount).displayTo(player);
+			new AccountSelectActionMenu(this, bankAccount).displayTo(player);
 		}
 	}
 
@@ -93,26 +93,28 @@ public class ATMMenu extends Menu {
 
 		private final Button depositButton;
 		private final Button withdrawButton;
-		private final BankAccount bankAccount;
+		private final Button settingsButton;
 
-		public AccountSelectActionMenu(BankAccount bankAccount) {
-			super(getPreviousMenu(player));
-			this.bankAccount = bankAccount;
+		public AccountSelectActionMenu(final Menu parent, final BankAccount bankAccount) {
+			super(parent);
 			setSize(9 * 5);
 			setTitle("&5ATM $" + bankAccount.getBalance() + " - Choose Action");
 
-			depositButton = new ButtonMenu(new AccountDepositMenu(bankAccount), CompMaterial.EMERALD_BLOCK, "&aDeposit Menu");
-			withdrawButton = new ButtonMenu(new AccountWithdrawMenu(bankAccount), CompMaterial.REDSTONE_BLOCK, "&cWithdraw Menu");
-
+			depositButton = new ButtonMenu(new AccountDepositMenu(this, bankAccount), CompMaterial.EMERALD_BLOCK, "&aDeposit Menu");
+			withdrawButton = new ButtonMenu(new AccountWithdrawMenu(this, bankAccount), CompMaterial.REDSTONE_BLOCK, "&cWithdraw Menu");
+			settingsButton = new ButtonMenu(new ATMSettingsMenu(this, bankAccount), CompMaterial.COAL_BLOCK, "&6Settings Menu");
 		}
 
 		@Override
 		public ItemStack getItemAt(int slot) {
 
-			if (slot == 9 * 2 + 3)
+			if (slot == 9 * 2 + 2)
 				return depositButton.getItem();
 
-			if (slot == 9 * 2 + 5)
+			if (slot == 9 * 2 + 4)
+				return settingsButton.getItem();
+
+			if (slot == 9 * 2 + 6)
 				return withdrawButton.getItem();
 
 
@@ -124,8 +126,8 @@ public class ATMMenu extends Menu {
 
 		private final BankAccount bankAccount;
 
-		protected AccountDepositMenu(BankAccount bankAccount) {
-			super(9 * 3, getPreviousMenu(player), createItemsSingular());
+		protected AccountDepositMenu(final Menu parent, final BankAccount bankAccount) {
+			super(9 * 3, parent, MoneyItemsUtil.getItemsFromMoneyItems());
 			this.bankAccount = bankAccount;
 			setTitle("&5ATM - Deposit");
 		}
@@ -159,7 +161,7 @@ public class ATMMenu extends Menu {
 				return;
 			}
 
-			if (!MoneyNoteUtil.isNoteValid(playerItem)) {
+			if (!MoneyItemsUtil.isNoteValid(playerItem)) {
 				animateTitle("&cFake money $" + amount + " bill!");
 				return;
 			}
@@ -173,6 +175,15 @@ public class ATMMenu extends Menu {
 
 			bankAccount.addBalance(amount);
 			Common.tell(player, "&aYou successfully deposited $" + amount);
+
+			int finalAmount = amount;
+			Common.runLaterAsync(() -> {
+				Transaction transaction = new Transaction(bankAccount.getAccountId(), finalAmount, bankAccount.getBalance(), TransactionType.ATM_DEPOSIT);
+				transaction.setExecutor(player.getUniqueId());
+				transaction.generateUUID();
+				bankAccount.addTransaction(transaction);
+				transaction.save();
+			});
 		}
 
 		@Override
@@ -201,8 +212,8 @@ public class ATMMenu extends Menu {
 
 		private final BankAccount bankAccount;
 
-		protected AccountWithdrawMenu(BankAccount bankAccount) {
-			super(9 * 5, getPreviousMenu(player), createItems());
+		protected AccountWithdrawMenu(final Menu parent, final BankAccount bankAccount) {
+			super(9 * 5, parent, MoneyItemsUtil.createItems(bankAccount.getBalance()));
 			this.bankAccount = bankAccount;
 
 			setTitle("&5ATM - Withdraw");
@@ -262,70 +273,16 @@ public class ATMMenu extends Menu {
 			player.getInventory().addItem(newItem);
 			Common.tell(player, "&aSuccessfully withdrawn $" + withdrawn);
 			restartMenu();
+
+			// Create the transaction
+			int finalWithdrawn = withdrawn;
+			Common.runLaterAsync(() -> {
+				Transaction transaction = new Transaction(bankAccount.getAccountId(), finalWithdrawn, bankAccount.getBalance(), TransactionType.ATM_WITHDRAW);
+				transaction.setExecutor(player.getUniqueId());
+				transaction.generateUUID();
+				bankAccount.addTransaction(transaction);
+				transaction.save();
+			});
 		}
-	}
-
-	private List<ItemStack> createItems() {
-		List<ItemStack> items = new ArrayList<>();
-		List<MoneyItem> values = Arrays.asList(MoneyItem.values());
-		Collections.sort(values);
-		values.sort(Collections.reverseOrder());
-
-		double balance = bankAccount.getBalance();
-
-		for (MoneyItem item : MoneyItem.values()) {
-			if (balance == 0)
-				break;
-
-			int itemValue = item.getPrice();
-			int fitHowManyTimes = numDiv((int) balance, itemValue);
-
-			if (fitHowManyTimes > 64) {
-				int howManyStacks = numDiv(fitHowManyTimes, 64);
-				while (howManyStacks > 0) {
-					items.add(createGuiItem(item.getItem(), item.getPrice(), 64));
-					fitHowManyTimes = fitHowManyTimes - 64;
-					balance = balance - (64 * item.getPrice());
-					howManyStacks--;
-				}
-			}
-
-			if (fitHowManyTimes > 0) {
-				items.add(createGuiItem(item.getItem(), item.getPrice(), fitHowManyTimes));
-				balance = balance - (fitHowManyTimes * item.getPrice());
-			}
-		}
-
-		return items;
-	}
-
-	private List<ItemStack> createItemsSingular() {
-		List<ItemStack> items = new ArrayList<>();
-		List<MoneyItem> values = Arrays.asList(MoneyItem.values());
-
-		for (MoneyItem item : values) {
-			items.add(createGuiItem(item.getItem(), item.getPrice(), 1));
-		}
-
-		return items;
-	}
-
-
-	// Nice little method to create a gui item with a custom name, and description
-	private ItemStack createGuiItem(final CompMaterial material, final int value, final int amount) {
-		final ItemStack item = ItemCreator.of(material, "&a$" + value,
-				"", "&5Official CityRP banknote with a value of $" + value)
-				.build().make();
-
-		item.setAmount(amount);
-
-		return item;
-	}
-
-	private int numDiv(int a, int b) {
-		double result = a / b;
-		result = Math.floor(result);
-
-		return (int) result;
 	}
 }

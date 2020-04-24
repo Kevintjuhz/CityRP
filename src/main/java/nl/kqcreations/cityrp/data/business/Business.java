@@ -1,7 +1,8 @@
-package nl.kqcreations.cityrp.data;
+package nl.kqcreations.cityrp.data.business;
 
 import lombok.Getter;
 import lombok.Setter;
+import nl.kqcreations.cityrp.data.bank.BankAccount;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -117,10 +118,7 @@ public class Business {
 		CASINO("Casino"),
 		ENTERTAINMENT("Entertainment");
 
-		private final String label;
-
 		BusinessType(String label) {
-			this.label = label;
 		}
 	}
 }

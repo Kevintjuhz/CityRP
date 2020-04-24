@@ -3,6 +3,8 @@ package nl.kqcreations.cityrp.data;
 import com.mongodb.client.MongoCollection;
 import lombok.Getter;
 import lombok.Setter;
+import nl.kqcreations.cityrp.data.bank.BankAccount;
+import nl.kqcreations.cityrp.data.bank.BankAccountData;
 import nl.kqcreations.cityrp.settings.Settings;
 import org.bson.Document;
 
@@ -52,6 +54,12 @@ public final class PlayerData {
 		return accountIds;
 	}
 
+	/**
+	 * Filters bankaccounts by a list of accounttypes.
+	 *
+	 * @param types
+	 * @return
+	 */
 	public List<BankAccount> getFilteredBankAccounts(List<BankAccount.AccountType> types) {
 		List<BankAccount> accounts = new ArrayList<>();
 
@@ -63,6 +71,12 @@ public final class PlayerData {
 		return accounts;
 	}
 
+	/**
+	 * Filters the bankaccounts by the given type.
+	 *
+	 * @param type
+	 * @return
+	 */
 	public List<BankAccount> getFilteredBankAccounts(BankAccount.AccountType type) {
 		List<BankAccount> accounts = new ArrayList<>();
 
@@ -75,6 +89,11 @@ public final class PlayerData {
 		return accounts;
 	}
 
+	/**
+	 * Gets the players main bankaccount
+	 *
+	 * @return
+	 */
 	public BankAccount getMainAccount() {
 		for (BankAccount bankAccount : bankAccounts) {
 			if (bankAccount.isMain())
@@ -145,7 +164,7 @@ public final class PlayerData {
 	 * @return
 	 */
 	private static Document createPlayer(UUID uuid) {
-		final int accountId = BankAccountData.createDefaultPlayerBankAccount(uuid);
+		final int accountId = BankAccountData.createMainPlayerBankAccount(uuid);
 
 		List<Integer> banks = new ArrayList<>();
 		banks.add(accountId);
@@ -175,7 +194,8 @@ public final class PlayerData {
 		playerData.setJob(document.getString("job"));
 
 		if (document.get("banks") != null) {
-			List<Integer> bankAccountIds = (List<Integer>) document.get("banks");
+
+			List<Integer> bankAccountIds = document.getList("banks", Integer.class);
 
 			// This stores all the bankAccount objects the player has access to.
 			playerData.setBankAccounts(BankAccountData.getBankAccounts(bankAccountIds));

@@ -1,7 +1,9 @@
-package nl.kqcreations.cityrp.data;
+package nl.kqcreations.cityrp.data.bank;
 
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Sorts;
+import nl.kqcreations.cityrp.data.MongoConnector;
+import nl.kqcreations.cityrp.data.bank.transaction.Transaction;
 import nl.kqcreations.cityrp.settings.Settings;
 import org.bson.Document;
 import org.mineacademy.fo.Common;
@@ -16,12 +18,18 @@ public class BankAccountData {
 
 	private static Map<Integer, BankAccount> bankAccountMap = new HashMap<>();
 
+	/**
+	 * Loads all the bankaccounts and puts them in a bankAccountMap, with the bank-id as the key
+	 */
 	public static void LoadBankAccounts() {
 		for (Document document : bankAccountCollection.find()) {
 			bankAccountMap.put(document.getInteger("account-id"), getBankAccountFromDocument(document));
 		}
 	}
 
+	/**
+	 * Saves all the bank accounts to the mongo collection
+	 */
 	public static void saveBankAccounts() {
 		Common.runLaterAsync(() -> {
 			System.out.println("Saving bank accounts");
@@ -31,6 +39,12 @@ public class BankAccountData {
 		});
 	}
 
+	/**
+	 * Gets a bank account by the account id
+	 *
+	 * @param accountId
+	 * @return
+	 */
 	public static BankAccount getBankAccount(int accountId) {
 		BankAccount account = bankAccountMap.get(accountId);
 
@@ -40,6 +54,12 @@ public class BankAccountData {
 		return null;
 	}
 
+	/**
+	 * Gets a list of bank accounts by a list of account ids.
+	 *
+	 * @param accountIds
+	 * @return
+	 */
 	public static List<BankAccount> getBankAccounts(List<Integer> accountIds) {
 		List<BankAccount> bankAccounts = new ArrayList<>();
 
@@ -50,14 +70,32 @@ public class BankAccountData {
 		return bankAccounts;
 	}
 
+	/**
+	 * Create a new bank account.
+	 *
+	 * @return
+	 */
 	public static BankAccount createNewBankAccount() {
 		return createNewBankAccount("");
 	}
 
+	/**
+	 * Create a new bank account with a specific name
+	 *
+	 * @param name
+	 * @return
+	 */
 	public static BankAccount createNewBankAccount(String name) {
 		return createNewBankAccount(name, BankAccount.AccountType.BUSINESS_ACCOUNT);
 	}
 
+	/**
+	 * Create a new bank account with a specific name and account type
+	 *
+	 * @param name
+	 * @param type
+	 * @return
+	 */
 	public static BankAccount createNewBankAccount(String name, BankAccount.AccountType type) {
 		final int bankAccountId = getNewId();
 		final BankAccount bankAccount = new BankAccount(bankAccountId);
@@ -70,7 +108,15 @@ public class BankAccountData {
 		return bankAccount;
 	}
 
-	public static int createDefaultPlayerBankAccount(UUID uuid) {
+	/**
+	 * Creates the main player bank account.
+	 * This method should only be called if the player doesn't have any previous
+	 * bank accounts.
+	 *
+	 * @param uuid
+	 * @return
+	 */
+	public static int createMainPlayerBankAccount(UUID uuid) {
 		final int bankAccountId = getNewId();
 		BankAccount bankAccount = new BankAccount(bankAccountId, uuid);
 		bankAccount.setMain(true);
@@ -82,6 +128,12 @@ public class BankAccountData {
 		return bankAccount.getAccountId();
 	}
 
+	/**
+	 * Gets a bank account from the given document
+	 *
+	 * @param document
+	 * @return
+	 */
 	private static BankAccount getBankAccountFromDocument(Document document) {
 		BankAccount bankAccount = new BankAccount(
 				document.getInteger("account-id"),
@@ -102,9 +154,28 @@ public class BankAccountData {
 			bankAccount.setUsers(accessLevelMap);
 		}
 
+		if (document.get("transactions") != null) {
+			List<Transaction> transactions = new ArrayList<>();
+
+			for (String transactionId : document.getList("transactions", String.class)) {
+				Transaction transaction = Transaction.fromTransactionId(transactionId);
+
+				if (transaction != null)
+					transactions.add(transaction);
+			}
+
+			bankAccount.setTransactions(transactions);
+		}
+
 		return bankAccount;
 	}
 
+	/**
+	 * Create a document from the given bank account
+	 *
+	 * @param bankAccount
+	 * @return
+	 */
 	private static Document getDocumentFromAccount(BankAccount bankAccount) {
 		List<Document> users = new ArrayList<>();
 		for (UUID uuid : bankAccount.getUsers().keySet()) {
@@ -114,6 +185,10 @@ public class BankAccountData {
 			);
 		}
 
+		List<String> transactions = new ArrayList<>();
+		for (Transaction transaction : bankAccount.getTransactions()) {
+			transactions.add(transaction.getTransactionId().toString());
+		}
 
 		Document document = new Document("account-id", bankAccount.getAccountId())
 				.append("is-main", bankAccount.isMain())
@@ -121,11 +196,18 @@ public class BankAccountData {
 				.append("balance", bankAccount.getBalance())
 				.append("users", users)
 				.append("name", bankAccount.getName())
-				.append("is-frozen", bankAccount.isFrozen());
+				.append("is-frozen", bankAccount.isFrozen())
+				.append("transactions", transactions);
 
 		return document;
 	}
 
+	/**
+	 * Update bankaccount into the collection
+	 *
+	 * @param accountId
+	 * @param document
+	 */
 	private static void updateBankAccount(int accountId, Document document) {
 
 		Document document1 = new Document("account-id", accountId);
@@ -139,6 +221,11 @@ public class BankAccountData {
 		}
 	}
 
+	/**
+	 * Generates a new bank account id.
+	 *
+	 * @return
+	 */
 	private static int getNewId() {
 		Document document = bankAccountCollection.find().sort(Sorts.descending("account-id")).first();
 

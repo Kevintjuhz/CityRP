@@ -3,6 +3,7 @@ package nl.kqcreations.cityrp.data;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import nl.kqcreations.cityrp.data.bank.BankAccountData;
 import org.mineacademy.fo.Common;
 import org.mineacademy.fo.settings.YamlConfig;
 

@@ -1,16 +1,16 @@
 package nl.kqcreations.cityrp.task;
 
-import nl.kqcreations.cityrp.data.BankAccount;
 import nl.kqcreations.cityrp.data.PlayerData;
+import nl.kqcreations.cityrp.data.bank.BankAccount;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.mineacademy.fo.Common;
 import org.mineacademy.fo.remain.Remain;
 
 public class PlayerHourlyRewardTask extends BukkitRunnable {
-	private static int baseLoan = 100;
 
 	public static int calculateReward(int level) {
+		int baseLoan = 100;
 		return (int) (baseLoan * Math.pow(level, 2));
 	}
 

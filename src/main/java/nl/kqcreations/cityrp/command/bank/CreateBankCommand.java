@@ -1,7 +1,7 @@
 package nl.kqcreations.cityrp.command.bank;
 
-import nl.kqcreations.cityrp.data.BankAccount;
-import nl.kqcreations.cityrp.data.BankAccountData;
+import nl.kqcreations.cityrp.data.bank.BankAccount;
+import nl.kqcreations.cityrp.data.bank.BankAccountData;
 import nl.kqcreations.cityrp.event.BankAccountCreateEvent;
 import org.mineacademy.fo.command.SimpleCommandGroup;
 import org.mineacademy.fo.command.SimpleSubCommand;
