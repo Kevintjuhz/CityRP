@@ -6,10 +6,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.mineacademy.fo.Common;
 import org.mineacademy.fo.menu.Menu;
 import org.mineacademy.fo.menu.MenuPagged;
 import org.mineacademy.fo.menu.button.Button;
-import org.mineacademy.fo.menu.button.ButtonConversation;
 import org.mineacademy.fo.menu.button.ButtonMenu;
 import org.mineacademy.fo.menu.model.ItemCreator;
 import org.mineacademy.fo.remain.CompColor;
@@ -88,7 +88,7 @@ public class ATMUserSettingsMenu extends Menu {
 				@Override
 				public void onClickedInMenu(Player player, Menu menu, ClickType click) {
 					bankAccount.promoteUser(user.getUuid());
-					restartMenu("&aPromoted user" + user.getName() + " to " + user.getAccessLevel());
+					restartMenu("&aPromoted user " + user.getName() + " to " + user.getAccessLevel());
 				}
 
 				@Override
@@ -101,7 +101,7 @@ public class ATMUserSettingsMenu extends Menu {
 				@Override
 				public void onClickedInMenu(Player player, Menu menu, ClickType click) {
 					bankAccount.demoteUser(user.getUuid());
-					restartMenu("&aDemoted user" + user.getName() + " to " + user.getAccessLevel());
+					restartMenu("&aDemoted user " + user.getName() + " to " + user.getAccessLevel());
 				}
 
 				@Override
@@ -110,7 +110,19 @@ public class ATMUserSettingsMenu extends Menu {
 				}
 			};
 
-			removeUser = new ButtonConversation(new ATMAddUserConversation(bankAccount), CompMaterial.BARRIER, "&cRemove User");
+			removeUser = new Button() {
+				@Override
+				public void onClickedInMenu(Player player, Menu menu, ClickType click) {
+					bankAccount.removeUser(user.getUuid());
+					Common.tell(player, "&aRemoved user " + user.getName() + " from this account!");
+					getPreviousMenu(player).displayTo(player);
+				}
+
+				@Override
+				public ItemStack getItem() {
+					return ItemCreator.of(CompMaterial.BARRIER, "&cRemove User").build().make();
+				}
+			};
 		}
 
 		@Override

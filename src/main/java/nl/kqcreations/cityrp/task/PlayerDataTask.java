@@ -1,6 +1,6 @@
 package nl.kqcreations.cityrp.task;
 
-import nl.kqcreations.cityrp.data.mongo_data.PlayerData;
+import nl.kqcreations.cityrp.data.mongo_data.player.PlayerData;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.mineacademy.fo.remain.Remain;

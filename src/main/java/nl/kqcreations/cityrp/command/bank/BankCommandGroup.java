@@ -10,5 +10,6 @@ public class BankCommandGroup extends SimpleCommandGroup {
 		registerSubcommand(new BankAddUserCommand(this));
 		registerSubcommand(new BankSetOwnerCommand(this));
 		registerSubcommand(new BankCreateCardCommand(this));
+		registerSubcommand(new BankGiveMoneyCommand(this));
 	}
 }

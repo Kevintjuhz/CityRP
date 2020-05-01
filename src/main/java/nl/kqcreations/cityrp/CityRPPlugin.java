@@ -63,7 +63,7 @@ public class CityRPPlugin extends SimplePlugin {
 		playerDataTask.runTaskTimer(this, 0, 1 * 20);
 
 		saveBankAccountsTask = new SaveBankAccountsTask();
-		saveBankAccountsTask.runTaskTimerAsynchronously(this, 0, (60 * 20) * 5);
+		saveBankAccountsTask.runTaskTimerAsynchronously(this, 60, (60 * 20) * 3);
 
 		playerHourlyRewardTask = new PlayerHourlyRewardTask();
 		playerHourlyRewardTask.runTaskTimer(this, 0, (60 * 20) * 60);

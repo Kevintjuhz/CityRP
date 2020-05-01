@@ -2,7 +2,7 @@ package nl.kqcreations.cityrp.command.plot;
 
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import nl.kqcreations.cityrp.data.mongo_data.bank.BankAccount;
-import nl.kqcreations.cityrp.data.mongo_data.PlayerData;
+import nl.kqcreations.cityrp.data.mongo_data.player.PlayerData;
 import nl.kqcreations.cityrp.util.PlotUtil;
 import org.bukkit.entity.Player;
 import org.mineacademy.fo.command.SimpleCommandGroup;

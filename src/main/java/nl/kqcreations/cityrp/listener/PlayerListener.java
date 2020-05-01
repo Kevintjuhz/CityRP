@@ -1,7 +1,7 @@
 package nl.kqcreations.cityrp.listener;
 
 import nl.kqcreations.cityrp.PlayerCityTracker;
-import nl.kqcreations.cityrp.data.mongo_data.PlayerData;
+import nl.kqcreations.cityrp.data.mongo_data.player.PlayerData;
 import nl.kqcreations.cityrp.data.yml_data.WorldData;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

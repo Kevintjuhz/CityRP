@@ -1,11 +1,11 @@
 package nl.kqcreations.cityrp.menu.ATM;
 
 import nl.kqcreations.cityrp.MoneyItem;
-import nl.kqcreations.cityrp.data.mongo_data.PlayerData;
 import nl.kqcreations.cityrp.data.mongo_data.bank.BankAccount;
 import nl.kqcreations.cityrp.data.mongo_data.bank.BankAccount.AccessLevel;
 import nl.kqcreations.cityrp.data.mongo_data.bank.transaction.Transaction;
 import nl.kqcreations.cityrp.data.mongo_data.bank.transaction.TransactionType;
+import nl.kqcreations.cityrp.data.mongo_data.player.PlayerData;
 import nl.kqcreations.cityrp.util.MoneyItemsUtil;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;

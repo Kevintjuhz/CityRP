@@ -1,7 +1,9 @@
 package nl.kqcreations.cityrp.task;
 
-import nl.kqcreations.cityrp.data.mongo_data.PlayerData;
 import nl.kqcreations.cityrp.data.mongo_data.bank.BankAccount;
+import nl.kqcreations.cityrp.data.mongo_data.bank.transaction.Transaction;
+import nl.kqcreations.cityrp.data.mongo_data.bank.transaction.TransactionType;
+import nl.kqcreations.cityrp.data.mongo_data.player.PlayerData;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.mineacademy.fo.Common;
@@ -22,6 +24,13 @@ public class PlayerHourlyRewardTask extends BukkitRunnable {
 			BankAccount bankAccount = data.getMainAccount();
 			int reward = calculateReward(data.getLevel());
 			bankAccount.addBalance(reward);
+
+			// Generating a transaction for the payment
+			Transaction transaction = new Transaction(bankAccount.getAccountId(), reward,
+					bankAccount.getBalance(), TransactionType.RECEIVED_STATE_PAYCHECK);
+			transaction.generateUUID();
+			bankAccount.addTransaction(transaction);
+
 			Common.runLater(() -> Common.tell(player, "&aYou got rewarded your loan of: $" + reward));
 //			});
 		}

@@ -1,8 +1,8 @@
 package nl.kqcreations.cityrp.command.bank;
 
-import nl.kqcreations.cityrp.data.mongo_data.PlayerData;
 import nl.kqcreations.cityrp.data.mongo_data.bank.BankAccount;
 import nl.kqcreations.cityrp.data.mongo_data.bank.BankAccountData;
+import nl.kqcreations.cityrp.data.mongo_data.player.PlayerData;
 import nl.kqcreations.cityrp.event.BankAccountAddUserEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;

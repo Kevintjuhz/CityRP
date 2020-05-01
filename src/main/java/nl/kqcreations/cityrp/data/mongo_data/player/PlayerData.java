@@ -1,41 +1,39 @@
-package nl.kqcreations.cityrp.data.mongo_data;
+package nl.kqcreations.cityrp.data.mongo_data.player;
 
-import com.mongodb.client.MongoCollection;
 import lombok.Getter;
 import lombok.Setter;
+import nl.kqcreations.cityrp.data.mongo_data.SimpleDocumentHandler;
 import nl.kqcreations.cityrp.data.mongo_data.bank.BankAccount;
-import nl.kqcreations.cityrp.data.mongo_data.bank.BankAccountData;
-import nl.kqcreations.cityrp.settings.Settings;
 import org.bson.Document;
 
 import java.util.*;
 
-import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Updates.combine;
-import static com.mongodb.client.model.Updates.set;
 
 @Getter
 @Setter
-public final class PlayerData extends MongoData {
-
-	private static MongoCollection<Document> players = MongoConnector.getInstance().getCollection("players");
+public final class PlayerData {
 
 	private static Map<UUID, PlayerData> playersCacheMap = new HashMap<>();
 
+	private static SimpleDocumentHandler<PlayerData> documentHandler;
+
+	static {
+		documentHandler = new PlayerDocumentGenerator();
+	}
+
+	private UUID uuid;
 	private int level = 1;
 	private String rank;
 	private String job;
 	private String cityColor;
 	private List<BankAccount> bankAccounts = new ArrayList<>();
 
-	public PlayerData() {
-		super("players");
-	}
 
 	public boolean addBankAccount(BankAccount bankAccount) {
 		for (BankAccount bankAccount1 : bankAccounts) {
-			if (bankAccount1.getAccountId() == bankAccount.getAccountId())
-				return false;
+			if (bankAccount1 != null && bankAccount != null)
+				if (bankAccount1.getAccountId() == bankAccount.getAccountId())
+					return false;
 		}
 
 		bankAccounts.add(bankAccount);
@@ -96,7 +94,7 @@ public final class PlayerData extends MongoData {
 	/**
 	 * Gets the players main bankaccount
 	 *
-	 * @return
+	 * @return A bank account
 	 */
 	public BankAccount getMainAccount() {
 		for (BankAccount bankAccount : bankAccounts) {
@@ -119,14 +117,14 @@ public final class PlayerData extends MongoData {
 
 		playersCacheMap.remove(uuid);
 		Document object = new Document("uuid", uuid.toString());
+		PlayerData playerData = null;
 
-		Document found = players.find(object).first();
+		Document found = documentHandler.findFirst(object);
 		if (found == null) {
-			found = createPlayer(uuid);
+			playerData = documentHandler.createDefault(uuid);
+		} else {
+			playerData = documentHandler.fromDocument(found);
 		}
-
-		PlayerData playerData = getPlayerDataFromDocument(found);
-
 
 		playersCacheMap.put(uuid, playerData);
 	}
@@ -135,7 +133,7 @@ public final class PlayerData extends MongoData {
 	 * This method is used when the player leaves the server. It will store the new
 	 * player data in the mongodb.
 	 *
-	 * @param uuid
+	 * @param uuid player uuid
 	 */
 	public static void onPlayerLeave(UUID uuid) {
 		final PlayerData playerData = getPlayerData(uuid);
@@ -145,67 +143,11 @@ public final class PlayerData extends MongoData {
 			return;
 		}
 
-		// Updates the player in the mongodb
-		players.updateOne(
-				eq("uuid", uuid.toString()),
-				combine(set("level", playerData.getLevel()),
-						set("rank", playerData.getRank()),
-						set("job", playerData.getJob()),
-						set("city-color", playerData.getCityColor()),
-						set("banks", playerData.getBankAccountIds())
-				)
-		);
+		// Saves the player to the mongo collection
+		documentHandler.update(playerData);
 
 		// removes the player from the player cache map
 		playersCacheMap.remove(uuid);
-	}
-
-	/**
-	 * This method is used to create a new player instance if the data doesn't exist
-	 * in the mongodb. This will be checked on every join
-	 *
-	 * @param uuid
-	 * @return
-	 */
-	private static Document createPlayer(UUID uuid) {
-		final int accountId = BankAccountData.createMainPlayerBankAccount(uuid);
-
-		List<Integer> banks = new ArrayList<>();
-		banks.add(accountId);
-
-		Document obj = new Document("uuid", uuid.toString())
-				.append("level", 1)
-				.append("rank", Settings.PlayerData.DEFAULT_RANK)
-				.append("job", Settings.PlayerData.DEFAULT_JOB)
-				.append("city-color", Settings.PlayerData.DEFAULT_CITY_COLOR)
-				.append("banks", banks);
-
-		players.insertOne(obj);
-		return obj;
-	}
-
-	/**
-	 * This method converts a MongoDB Document to a PlayerData object.
-	 *
-	 * @param document
-	 * @return The PlayerData object for that specific player
-	 */
-	private static PlayerData getPlayerDataFromDocument(Document document) {
-		PlayerData playerData = new PlayerData();
-		playerData.setLevel(document.getInteger("level"));
-		playerData.setRank(document.getString("rank"));
-		playerData.setCityColor(document.getString("city-color"));
-		playerData.setJob(document.getString("job"));
-
-		if (document.get("banks") != null) {
-
-			List<Integer> bankAccountIds = document.getList("banks", Integer.class);
-
-			// This stores all the bankAccount objects the player has access to.
-			playerData.setBankAccounts(BankAccountData.getBankAccounts(bankAccountIds));
-		}
-
-		return playerData;
 	}
 
 
@@ -213,7 +155,7 @@ public final class PlayerData extends MongoData {
 	 * This method should be called when you want to get the playerdata object
 	 * from a certain player.
 	 *
-	 * @param playeruuid
+	 * @param playeruuid player uuid
 	 * @return the playerdata object
 	 */
 	public static PlayerData getPlayerData(UUID playeruuid) {

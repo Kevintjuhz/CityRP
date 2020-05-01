@@ -2,13 +2,13 @@ package nl.kqcreations.cityrp.command.bank;
 
 import nl.kqcreations.cityrp.data.mongo_data.bank.BankAccount;
 import nl.kqcreations.cityrp.data.mongo_data.bank.BankAccountData;
+import nl.kqcreations.cityrp.data.mongo_data.player.PlayerData;
 import nl.kqcreations.cityrp.event.BankAccountCreateEvent;
 import nl.kqcreations.cityrp.util.StringUtils;
 import org.bukkit.entity.Player;
 import org.mineacademy.fo.command.SimpleCommandGroup;
 import org.mineacademy.fo.command.SimpleSubCommand;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -17,7 +17,7 @@ public class CreateBankAccountCommand extends SimpleSubCommand {
 		super(parent, "create");
 		setDescription("Lets you create a new bank account");
 		setUsage("<type> <owner> [name]");
-		setMinArguments(3);
+		setMinArguments(2);
 	}
 
 	@Override
@@ -51,6 +51,9 @@ public class CreateBankAccountCommand extends SimpleSubCommand {
 		BankAccount bankAccount = BankAccountData.createNewBankAccount(name, type != null ? type : BankAccount.AccountType.BUSINESS_ACCOUNT);
 		bankAccount.setOwner(uuid);
 
+		final PlayerData data = PlayerData.getPlayerData(uuid);
+		data.addBankAccount(bankAccount);
+
 		tell("&aYou successfully created a bank account with id: "
 				+ bankAccount.getAccountId() + " and name: "
 				+ bankAccount.getName() + " with owner " + target.getName());
@@ -63,6 +66,6 @@ public class CreateBankAccountCommand extends SimpleSubCommand {
 		if (args.length == 1)
 			return completeLastWord(BankAccount.AccountType.values());
 
-		return new ArrayList<>();
+		return null;
 	}
 }
