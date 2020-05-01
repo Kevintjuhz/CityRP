@@ -13,7 +13,7 @@ public class BankAccountData {
 	private static SimpleDocumentHandler<BankAccount> documentHandler;
 
 	static {
-		documentHandler = new BankDocumentGenerator();
+		documentHandler = new BankDocumentHandler();
 	}
 
 	private static Map<Integer, BankAccount> bankAccountMap = new HashMap<>();
@@ -49,10 +49,7 @@ public class BankAccountData {
 	public static BankAccount getBankAccount(int accountId) {
 		BankAccount account = bankAccountMap.get(accountId);
 
-		if (account != null)
-			return account;
-
-		return null;
+		return account;
 	}
 
 	/**

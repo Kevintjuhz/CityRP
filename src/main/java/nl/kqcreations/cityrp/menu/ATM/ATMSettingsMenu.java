@@ -1,6 +1,6 @@
 package nl.kqcreations.cityrp.menu.ATM;
 
-import nl.kqcreations.cityrp.conversation.ATMSetPinConversation;
+import nl.kqcreations.cityrp.conversation.atm.ATMSetPinConversation;
 import nl.kqcreations.cityrp.data.mongo_data.bank.BankAccount;
 import nl.kqcreations.cityrp.data.mongo_data.bank.BankAccountData;
 import nl.kqcreations.cityrp.data.mongo_data.bank.transaction.Transaction;

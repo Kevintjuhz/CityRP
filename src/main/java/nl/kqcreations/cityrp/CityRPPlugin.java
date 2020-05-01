@@ -4,6 +4,7 @@ import nl.kqcreations.cityrp.command.LawsCommand;
 import nl.kqcreations.cityrp.command.SetLevelCommand;
 import nl.kqcreations.cityrp.command.WorldAddCommand;
 import nl.kqcreations.cityrp.command.bank.BankCommandGroup;
+import nl.kqcreations.cityrp.command.business.BusinessCommandGroup;
 import nl.kqcreations.cityrp.command.city.CityCommandGroup;
 import nl.kqcreations.cityrp.command.cityrp.CityRPCommandGroup;
 import nl.kqcreations.cityrp.command.plot.PlotCommandGroup;
@@ -77,6 +78,7 @@ public class CityRPPlugin extends SimplePlugin {
 		registerCommands("city", new CityCommandGroup());
 		registerCommands("cityrp", new CityRPCommandGroup());
 		registerCommands("bank", new BankCommandGroup());
+		registerCommands("business", new BusinessCommandGroup());
 
 		registerEvents(new PlayerListener());
 		registerEvents(new BlockListener());

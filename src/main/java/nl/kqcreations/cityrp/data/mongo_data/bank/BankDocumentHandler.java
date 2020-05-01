@@ -11,7 +11,7 @@ import java.util.*;
 
 import static com.mongodb.client.model.Filters.eq;
 
-public class BankDocumentGenerator implements SimpleDocumentHandler<BankAccount> {
+public class BankDocumentHandler implements SimpleDocumentHandler<BankAccount> {
 
 	@Override
 	public MongoCollection<Document> getCollection() {

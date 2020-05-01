@@ -12,8 +12,8 @@ import org.mineacademy.fo.command.SimpleSubCommand;
 import java.util.List;
 import java.util.UUID;
 
-public class CreateBankAccountCommand extends SimpleSubCommand {
-	protected CreateBankAccountCommand(SimpleCommandGroup parent) {
+public class BankCreateAccountCommand extends SimpleSubCommand {
+	protected BankCreateAccountCommand(SimpleCommandGroup parent) {
 		super(parent, "create");
 		setDescription("Lets you create a new bank account");
 		setUsage("<type> <owner> [name]");

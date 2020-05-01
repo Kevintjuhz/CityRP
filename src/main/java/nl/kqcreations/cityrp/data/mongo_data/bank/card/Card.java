@@ -28,8 +28,4 @@ public class Card {
 				"&7Card ID: &f" + getCardId()
 		).build().make();
 	}
-
-	public String getPin() {
-		return bankAccount.getPin();
-	}
 }

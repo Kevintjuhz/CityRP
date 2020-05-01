@@ -1,4 +1,4 @@
-package nl.kqcreations.cityrp.conversation;
+package nl.kqcreations.cityrp.conversation.atm;
 
 import nl.kqcreations.cityrp.data.mongo_data.bank.BankAccount;
 import org.bukkit.conversations.ConversationContext;

@@ -13,7 +13,7 @@ import java.util.UUID;
 
 import static com.mongodb.client.model.Filters.eq;
 
-public class PlayerDocumentGenerator implements SimpleDocumentHandler<PlayerData> {
+public class PlayerDocumentHandler implements SimpleDocumentHandler<PlayerData> {
 
 	@Override
 	public MongoCollection<Document> getCollection() {

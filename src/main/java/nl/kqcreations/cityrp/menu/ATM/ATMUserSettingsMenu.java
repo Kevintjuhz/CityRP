@@ -1,6 +1,6 @@
 package nl.kqcreations.cityrp.menu.ATM;
 
-import nl.kqcreations.cityrp.conversation.ATMAddUserConversation;
+import nl.kqcreations.cityrp.conversation.atm.ATMAddUserConversation;
 import nl.kqcreations.cityrp.data.mongo_data.bank.BankAccount;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;

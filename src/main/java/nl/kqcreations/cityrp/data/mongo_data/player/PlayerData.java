@@ -4,13 +4,14 @@ import lombok.Getter;
 import lombok.Setter;
 import nl.kqcreations.cityrp.data.mongo_data.SimpleDocumentHandler;
 import nl.kqcreations.cityrp.data.mongo_data.bank.BankAccount;
+import nl.kqcreations.cityrp.data.mongo_data.business.Business;
+import nl.kqcreations.cityrp.data.mongo_data.business.Job;
 import org.bson.Document;
 
 import java.util.*;
 
 
 @Getter
-@Setter
 public final class PlayerData {
 
 	private static Map<UUID, PlayerData> playersCacheMap = new HashMap<>();
@@ -18,17 +19,39 @@ public final class PlayerData {
 	private static SimpleDocumentHandler<PlayerData> documentHandler;
 
 	static {
-		documentHandler = new PlayerDocumentGenerator();
+		documentHandler = new PlayerDocumentHandler();
 	}
 
+	@Setter
 	private UUID uuid;
+	@Setter
 	private int level = 1;
+	@Setter
 	private String rank;
+	@Setter
 	private String job;
+	@Setter
 	private String cityColor;
+	@Setter
 	private List<BankAccount> bankAccounts = new ArrayList<>();
 
+	private Map<Integer, Business> ownedBusinesses = new HashMap<>();
+	private Map<Integer, Job> jobs = new HashMap<>();
 
+	public void addOwnedBusiness(Business business) {
+		ownedBusinesses.putIfAbsent(business.getBusinessId(), business);
+	}
+
+	public void addJob(Job job) {
+		jobs.putIfAbsent(job.getBusinessId(), job);
+	}
+
+	/**
+	 * Adds a bank account to the player object
+	 *
+	 * @param bankAccount Provide a valid bank account
+	 * @return a boolean telling you if the operation succeeded
+	 */
 	public boolean addBankAccount(BankAccount bankAccount) {
 		for (BankAccount bankAccount1 : bankAccounts) {
 			if (bankAccount1 != null && bankAccount != null)

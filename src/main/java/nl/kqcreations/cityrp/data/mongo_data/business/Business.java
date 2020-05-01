@@ -13,17 +13,20 @@ import java.util.UUID;
 @Setter
 public class Business {
 	private String name;
+	private String world;
+	private int businessId;
 	private String plotName = null;
 	private BankAccount bankAccount = null;
 	private UUID owner;
-	private BusinessCategory businessCategory;
+	private BusinessType businessType;
 
 	private final Map<UUID, Worker> workers = new HashMap<>();
 
-	public Business(String name, UUID owner, BusinessCategory businessCategory) {
+	public Business(int businessId, String name, BusinessType businessType, String world) {
 		this.name = name;
-		this.owner = owner;
-		this.businessCategory = businessCategory;
+		this.businessId = businessId;
+		this.businessType = businessType;
+		this.world = world;
 	}
 
 	public void addWorker(Player worker) {
@@ -110,7 +113,7 @@ public class Business {
 		}
 	}
 
-	public enum BusinessCategory {
+	public enum BusinessType {
 		FOOD_SHOP("Food Shop"),
 		CLOTHING_SHOP("Clothing Shop"),
 		ARCHITECT("Architect"),
@@ -118,15 +121,7 @@ public class Business {
 		CASINO("Casino"),
 		ENTERTAINMENT("Entertainment");
 
-		BusinessCategory(String label) {
-		}
-	}
-
-	public enum BusinessType {
-		PRODUCT("Product"),
-		SERVICE("Service");
-
-		BusinessType(String product) {
+		BusinessType(String label) {
 		}
 	}
 }
