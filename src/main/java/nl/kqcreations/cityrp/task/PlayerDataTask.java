@@ -11,6 +11,7 @@ public class PlayerDataTask extends BukkitRunnable {
 		for (final Player player : Remain.getOnlinePlayers()) {
 			final PlayerData data = PlayerData.getPlayerData(player.getUniqueId());
 
+
 			Remain.sendActionBar(player,
 					"&2Level: &a" + data.getLevel()
 							+ "   &2Job: &a" + data.getJob()
