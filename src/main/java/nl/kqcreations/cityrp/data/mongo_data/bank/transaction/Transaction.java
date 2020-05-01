@@ -1,16 +1,18 @@
-package nl.kqcreations.cityrp.data.bank.transaction;
+package nl.kqcreations.cityrp.data.mongo_data.bank.transaction;
 
 import com.mongodb.client.MongoCollection;
 import lombok.Getter;
 import lombok.Setter;
-import nl.kqcreations.cityrp.data.MongoConnector;
+import nl.kqcreations.cityrp.data.mongo_data.MongoConnector;
 import org.bson.Document;
+import org.jetbrains.annotations.NotNull;
 import org.mineacademy.fo.Common;
 
+import java.text.SimpleDateFormat;
 import java.util.UUID;
 
 @Getter
-public final class Transaction {
+public final class Transaction implements Comparable<Transaction> {
 
 	private static MongoCollection<Document> collection = MongoConnector.getInstance().getCollection("transactions");
 
@@ -57,6 +59,9 @@ public final class Transaction {
 		this.date = System.currentTimeMillis();
 	}
 
+	/**
+	 * Generates the UUID for the transaction and sets its.
+	 */
 	public void generateUUID() {
 		UUID uuid;
 
@@ -71,7 +76,7 @@ public final class Transaction {
 	}
 
 	/**
-	 * Saves the transaction to the transactions collection
+	 * Saves the transaction to the transactions collection.
 	 */
 	public void save() {
 		Common.runLaterAsync(() -> {
@@ -79,8 +84,13 @@ public final class Transaction {
 		});
 	}
 
+	/**
+	 * Makes the Transaction object into a Mongo Document.
+	 *
+	 * @return
+	 */
 	private Document toDocument() {
-		final Document document = new Document("transaction-id", transactionId)
+		final Document document = new Document("transaction-id", transactionId.toString())
 				.append("invoker", invokerId)
 				.append("amount", amount)
 				.append("type", type.toString())
@@ -93,6 +103,22 @@ public final class Transaction {
 			document.append("receiver", receiverId);
 
 		return document;
+	}
+
+	/**
+	 * Returns the formatted date of when the transaction occurred.
+	 *
+	 * @return
+	 */
+	public String getDateString() {
+		SimpleDateFormat format = new SimpleDateFormat("dd-MM-YYYY HH:mm:ss");
+
+		return format.format(date);
+	}
+
+	@Override
+	public int compareTo(@NotNull Transaction o) {
+		return (int) (o.getDate() - this.getDate());
 	}
 
 	// ----------------------------
@@ -112,6 +138,9 @@ public final class Transaction {
 		Document document = new Document("transaction-id", transactionId);
 
 		document = collection.find(document).first();
+
+		if (document == null)
+			return null;
 
 		return fromDocument(document);
 	}

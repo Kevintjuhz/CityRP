@@ -1,44 +1,32 @@
-package nl.kqcreations.cityrp.data.bank;
+package nl.kqcreations.cityrp.data.mongo_data.bank;
 
 import lombok.Getter;
 import lombok.Setter;
-import nl.kqcreations.cityrp.data.bank.transaction.Transaction;
+import nl.kqcreations.cityrp.data.mongo_data.bank.transaction.Transaction;
 
 import java.util.*;
 
 @Getter
+@Setter
 public class BankAccount {
 
-	private int accountId;
+	private final int accountId;
 
-	@Setter
 	private double balance = 0;
 
-	@Setter
 	private String name;
 
-	@Setter
+	private String pin = "0000";
+
 	private boolean isFrozen = false;
 
-	@Setter
 	private AccountType type;
-
-	@Setter
 	private boolean isMain = false;
 
-	@Setter
-	private Map<UUID, AccessLevel> users = new HashMap<>();
+	private UUID owner;
+	private Map<UUID, BankUser> users = new HashMap<>();
 
-	@Setter()
 	private List<Transaction> transactions = new ArrayList<>();
-
-	public BankAccount(int accountId, UUID uuid) {
-		this.accountId = accountId;
-		this.name = Integer.toString(accountId);
-		this.type = AccountType.PRIVATE_ACCOUNT;
-		this.addUser(uuid);
-		this.setOwner(uuid);
-	}
 
 	public BankAccount(int accountId) {
 		this.accountId = accountId;
@@ -59,16 +47,26 @@ public class BankAccount {
 		this.name = Integer.toString(accountId);
 	}
 
+	public List<BankUser> getUserList() {
+		List<BankUser> bankUsers = new ArrayList<>();
+		bankUsers.addAll(users.values());
+
+		return bankUsers;
+	}
+
 	// --------------------------------------------
 	// Transaction actions
 	// --------------------------------------------
 
-	public void addTransaction(Transaction transaction) {
-		transactions.add(transaction);
+	public List<Transaction> getSortedTransactions() {
+		List<Transaction> transactions = this.transactions;
+
+		Collections.sort(transactions);
+		return transactions;
 	}
 
-	public void removeTransaction(Transaction transaction) {
-		transactions.remove(transaction);
+	public void addTransaction(Transaction transaction) {
+		transactions.add(transaction);
 	}
 
 	// --------------------------------------------
@@ -94,6 +92,10 @@ public class BankAccount {
 	// User actions
 	// --------------------------------------------
 
+	public BankUser getUser(UUID playeruuid) {
+		return users.get(playeruuid);
+	}
+
 	/**
 	 * Gets the accesslevel of the given user.
 	 *
@@ -101,7 +103,7 @@ public class BankAccount {
 	 * @return
 	 */
 	public AccessLevel getUserAccessLevel(UUID playeruuid) {
-		return users.get(playeruuid);
+		return users.get(playeruuid).getAccessLevel();
 	}
 
 	/**
@@ -110,12 +112,12 @@ public class BankAccount {
 	 * @param playeruuid
 	 * @return
 	 */
-	public boolean addUser(UUID playeruuid) {
-		return addUser(playeruuid, AccessLevel.MANAGE);
+	public boolean addUser(String name, UUID playeruuid) {
+		return addUser(name, playeruuid, AccessLevel.MANAGE);
 	}
 
-	public boolean addUser(UUID playeruuid, AccessLevel level) {
-		users.computeIfAbsent(playeruuid, (uuid) -> users.put(playeruuid, level));
+	public boolean addUser(String name, UUID playeruuid, AccessLevel level) {
+		users.computeIfAbsent(playeruuid, (uuid) -> users.put(playeruuid, new BankUser(name, playeruuid, level)));
 		return true;
 	}
 
@@ -126,11 +128,14 @@ public class BankAccount {
 	 * @return
 	 */
 	public boolean promoteUser(UUID playeruuid) {
-		AccessLevel level = users.get(playeruuid);
+		BankUser bankUser = users.get(playeruuid);
+		AccessLevel level = bankUser.getAccessLevel();
 		if (level == null || level.getNext() == level)
 			return false;
 
-		users.replace(playeruuid, level.getNext());
+		bankUser.setAccessLevel(level.getNext());
+
+		users.replace(playeruuid, bankUser);
 		return true;
 	}
 
@@ -145,21 +150,14 @@ public class BankAccount {
 		if (users.get(playeruuid) == null)
 			return false;
 
-		users.replace(playeruuid, accessLevel);
+		BankUser bankUser = users.get(playeruuid);
+		bankUser.setAccessLevel(accessLevel);
+
+		users.remove(playeruuid);
+		users.put(playeruuid, bankUser);
 		return true;
 	}
 
-	/**
-	 * sets the owner for the given bankaccount
-	 *
-	 * @param playeruuid
-	 */
-	public void setOwner(UUID playeruuid) {
-		if (users.get(playeruuid) == null)
-			users.put(playeruuid, AccessLevel.OWNER);
-		else
-			users.replace(playeruuid, AccessLevel.OWNER);
-	}
 
 	/**
 	 * Demotes a user to a lower accesslevel
@@ -168,12 +166,38 @@ public class BankAccount {
 	 * @return
 	 */
 	public boolean demoteUser(UUID playeruuid) {
-		AccessLevel level = users.get(playeruuid);
+		BankUser bankUser = users.get(playeruuid);
+		AccessLevel level = bankUser.getAccessLevel();
 		if (level == null || level.getPrevious() == level)
 			return false;
 
-		users.replace(playeruuid, level.getPrevious());
+		bankUser.setAccessLevel(level.getPrevious());
+
+		users.replace(playeruuid, bankUser);
 		return true;
+	}
+
+	public boolean removeUser(UUID playeruuid) {
+		users.remove(playeruuid);
+		return true;
+	}
+
+	// --------------------------------------------
+	// Bank Users
+	// --------------------------------------------
+
+	@Getter
+	public static class BankUser {
+		String name;
+		UUID uuid;
+		@Setter
+		AccessLevel accessLevel;
+
+		public BankUser(String name, UUID uuid, AccessLevel accessLevel) {
+			this.name = name;
+			this.uuid = uuid;
+			this.accessLevel = accessLevel;
+		}
 	}
 
 	// --------------------------------------------
@@ -181,14 +205,14 @@ public class BankAccount {
 	// --------------------------------------------
 
 	public enum AccessLevel {
-		VIEW, MANAGE, OWNER;
+		VIEW, MANAGE;
 
 		public AccessLevel getNext() {
 			AccessLevel[] levels = values();
-			if (this.ordinal() == levels.length) {
+			if (this.ordinal() + 1 >= levels.length)
 				return this;
-			}
-			return levels[this.ordinal() + 1];
+			else
+				return levels[this.ordinal() + 1];
 		}
 
 		public AccessLevel getPrevious() {

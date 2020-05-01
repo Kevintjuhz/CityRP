@@ -1,8 +1,8 @@
 package nl.kqcreations.cityrp.listener;
 
 import nl.kqcreations.cityrp.PlayerCityTracker;
-import nl.kqcreations.cityrp.data.PlayerData;
-import nl.kqcreations.cityrp.data.WorldData;
+import nl.kqcreations.cityrp.data.mongo_data.PlayerData;
+import nl.kqcreations.cityrp.data.yml_data.WorldData;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -53,6 +53,5 @@ public class PlayerListener implements Listener {
 		}
 
 		PlayerCityTracker.updatePlayerCityTracker(player);
-
 	}
 }

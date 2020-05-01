@@ -1,14 +1,16 @@
-package nl.kqcreations.cityrp.menu;
+package nl.kqcreations.cityrp.menu.ATM;
 
 import nl.kqcreations.cityrp.MoneyItem;
-import nl.kqcreations.cityrp.data.PlayerData;
-import nl.kqcreations.cityrp.data.bank.BankAccount;
-import nl.kqcreations.cityrp.data.bank.transaction.Transaction;
-import nl.kqcreations.cityrp.data.bank.transaction.TransactionType;
+import nl.kqcreations.cityrp.data.mongo_data.PlayerData;
+import nl.kqcreations.cityrp.data.mongo_data.bank.BankAccount;
+import nl.kqcreations.cityrp.data.mongo_data.bank.BankAccount.AccessLevel;
+import nl.kqcreations.cityrp.data.mongo_data.bank.transaction.Transaction;
+import nl.kqcreations.cityrp.data.mongo_data.bank.transaction.TransactionType;
 import nl.kqcreations.cityrp.util.MoneyItemsUtil;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
+import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.mineacademy.fo.Common;
@@ -106,16 +108,33 @@ public class ATMMenu extends Menu {
 		}
 
 		@Override
+		protected void onMenuClick(Player player, int slot, InventoryAction action, ClickType click, ItemStack cursor, ItemStack clicked, boolean cancelled) {
+			AccessLevel level = bankAccount.getUserAccessLevel(player.getUniqueId());
+			if (level.equals(AccessLevel.VIEW)) {
+				animateTitle("&cYou don't have permission!");
+				cancelled = true;
+				return;
+			}
+		}
+
+		@Override
 		public ItemStack getItemAt(int slot) {
 
-			if (slot == 9 * 2 + 2)
-				return depositButton.getItem();
+			if (bankAccount.isMain() || !bankAccount.getOwner().equals(getViewer().getUniqueId())) {
+				if (slot == 9 * 2 + 3)
+					return depositButton.getItem();
+				if (slot == 9 * 2 + 5)
+					return withdrawButton.getItem();
+			} else {
+				if (slot == 9 * 2 + 2)
+					return depositButton.getItem();
 
-			if (slot == 9 * 2 + 4)
-				return settingsButton.getItem();
+				if (slot == 9 * 2 + 4)
+					return settingsButton.getItem();
 
-			if (slot == 9 * 2 + 6)
-				return withdrawButton.getItem();
+				if (slot == 9 * 2 + 6)
+					return withdrawButton.getItem();
+			}
 
 
 			return ItemCreator.of(CompMaterial.GRAY_STAINED_GLASS_PANE, "", "").clearFlags().hideTags(true).build().make();
@@ -175,15 +194,17 @@ public class ATMMenu extends Menu {
 
 			bankAccount.addBalance(amount);
 			Common.tell(player, "&aYou successfully deposited $" + amount);
+			restartMenu();
 
 			int finalAmount = amount;
-			Common.runLaterAsync(() -> {
-				Transaction transaction = new Transaction(bankAccount.getAccountId(), finalAmount, bankAccount.getBalance(), TransactionType.ATM_DEPOSIT);
-				transaction.setExecutor(player.getUniqueId());
-				transaction.generateUUID();
-				bankAccount.addTransaction(transaction);
-				transaction.save();
-			});
+
+			// Create the transaction
+			Transaction transaction = new Transaction(bankAccount.getAccountId(), finalAmount, bankAccount.getBalance(), TransactionType.ATM_DEPOSIT);
+			transaction.setExecutor(player.getUniqueId());
+			transaction.generateUUID();
+			bankAccount.addTransaction(transaction);
+
+			Common.runLaterAsync(transaction::save);
 		}
 
 		@Override
@@ -208,7 +229,7 @@ public class ATMMenu extends Menu {
 
 	}
 
-	private final class AccountWithdrawMenu extends MenuPagged<ItemStack> {
+	private static final class AccountWithdrawMenu extends MenuPagged<ItemStack> {
 
 		private final BankAccount bankAccount;
 
@@ -276,13 +297,12 @@ public class ATMMenu extends Menu {
 
 			// Create the transaction
 			int finalWithdrawn = withdrawn;
-			Common.runLaterAsync(() -> {
-				Transaction transaction = new Transaction(bankAccount.getAccountId(), finalWithdrawn, bankAccount.getBalance(), TransactionType.ATM_WITHDRAW);
-				transaction.setExecutor(player.getUniqueId());
-				transaction.generateUUID();
-				bankAccount.addTransaction(transaction);
-				transaction.save();
-			});
+
+			Transaction transaction = new Transaction(bankAccount.getAccountId(), finalWithdrawn, bankAccount.getBalance(), TransactionType.ATM_WITHDRAW);
+			transaction.setExecutor(player.getUniqueId());
+			transaction.generateUUID();
+			bankAccount.addTransaction(transaction);
+			Common.runLaterAsync(transaction::save);
 		}
 	}
 }

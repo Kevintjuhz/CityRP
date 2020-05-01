@@ -1,7 +1,7 @@
 package nl.kqcreations.cityrp.event;
 
 import lombok.Getter;
-import nl.kqcreations.cityrp.data.bank.BankAccount;
+import nl.kqcreations.cityrp.data.mongo_data.bank.BankAccount;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;

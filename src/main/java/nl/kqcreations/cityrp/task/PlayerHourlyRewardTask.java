@@ -1,7 +1,7 @@
 package nl.kqcreations.cityrp.task;
 
-import nl.kqcreations.cityrp.data.PlayerData;
-import nl.kqcreations.cityrp.data.bank.BankAccount;
+import nl.kqcreations.cityrp.data.mongo_data.PlayerData;
+import nl.kqcreations.cityrp.data.mongo_data.bank.BankAccount;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.mineacademy.fo.Common;

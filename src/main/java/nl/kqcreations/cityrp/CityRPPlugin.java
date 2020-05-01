@@ -1,6 +1,5 @@
 package nl.kqcreations.cityrp;
 
-import me.clip.placeholderapi.PlaceholderAPI;
 import nl.kqcreations.cityrp.command.LawsCommand;
 import nl.kqcreations.cityrp.command.SetLevelCommand;
 import nl.kqcreations.cityrp.command.WorldAddCommand;
@@ -10,8 +9,8 @@ import nl.kqcreations.cityrp.command.cityrp.CityRPCommandGroup;
 import nl.kqcreations.cityrp.command.plot.PlotCommandGroup;
 import nl.kqcreations.cityrp.command.plot.PlotWandCommand;
 import nl.kqcreations.cityrp.data.DataLoader;
-import nl.kqcreations.cityrp.data.MongoConnector;
-import nl.kqcreations.cityrp.data.bank.BankAccountData;
+import nl.kqcreations.cityrp.data.mongo_data.MongoConnector;
+import nl.kqcreations.cityrp.data.mongo_data.bank.BankAccountData;
 import nl.kqcreations.cityrp.listener.BlockListener;
 import nl.kqcreations.cityrp.listener.CraftListener;
 import nl.kqcreations.cityrp.listener.PlayerListener;
@@ -43,15 +42,16 @@ public class CityRPPlugin extends SimplePlugin {
 	protected void onPluginStart() {
 		instance = this;
 
+		if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+			new CityRpExpansion().register();
+		}
+
 		if (!HookManager.isWorldGuardLoaded()) {
 			Common.logFramed("&cCityRP could not be loaded, Please make sure you have WorldGuard installed");
 			Bukkit.getPluginManager().disablePlugin(this);
 			return;
 		}
-		if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
-//			new CityRpExpansion(this).register();
-			PlaceholderAPI.registerPlaceholderHook("cityrp", new CityRpExpansion(this));
-		}
+
 
 		MongoConnector.getInstance().connect();
 		DataLoader.getInstance().load();

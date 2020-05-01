@@ -1,26 +1,14 @@
 package nl.kqcreations.cityrp;
 
+import me.clip.placeholderapi.PlaceholderAPIPlugin;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
-import org.bukkit.entity.Player;
+import org.bukkit.OfflinePlayer;
 
 public class CityRpExpansion extends PlaceholderExpansion {
 
-	private CityRPPlugin plugin;
-
-	/**
-	 * Since we register the expansion inside our own plugin, we
-	 * can simply use this method here to get an instance of our
-	 * plugin.
-	 *
-	 * @param plugin The instance of our plugin.
-	 */
-	public CityRpExpansion(CityRPPlugin plugin) {
-		this.plugin = plugin;
-	}
-
 	@Override
-	public boolean persist() {
-		return true;
+	public String getRequiredPlugin() {
+		return null;
 	}
 
 	@Override
@@ -35,25 +23,29 @@ public class CityRpExpansion extends PlaceholderExpansion {
 
 	@Override
 	public String getAuthor() {
-		return plugin.getDescription().getAuthors().toString();
+		return "Kevintjuhz";
 	}
 
 	@Override
 	public String getVersion() {
-		return plugin.getDescription().getVersion();
+		return "1.0.0";
 	}
 
 	@Override
-	public String onPlaceholderRequest(Player player, String identifier) {
-		// %cityrp_current_city%
-		if (identifier.equals("current_city")) {
-			return PlayerCityTracker.getCurrentCityOfPlayer(player.getUniqueId());
-		}
-		if (identifier.equals("test")) {
-			return "TEST";
-		}
+	public PlaceholderAPIPlugin getPlaceholderAPI() {
+		return PlaceholderAPIPlugin.getInstance();
+	}
+
+	@Override
+	public String onRequest(OfflinePlayer p, String params) {
+		if (p == null)
+			return "";
+
+		if (params.equalsIgnoreCase("current_city"))
+			return PlayerCityTracker.getCurrentCityOfPlayer(p.getUniqueId());
 
 		return null;
 	}
+
 
 }

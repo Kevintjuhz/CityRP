@@ -13,7 +13,7 @@ import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import com.sk89q.worldguard.protection.regions.RegionContainer;
 import lombok.Getter;
 import lombok.Setter;
-import nl.kqcreations.cityrp.data.CityData;
+import nl.kqcreations.cityrp.data.yml_data.CityData;
 import nl.kqcreations.cityrp.settings.Settings;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -73,8 +73,8 @@ public class PlotUtil {
 
 		ProtectedRegion region = new ProtectedCuboidRegion(name, selection.getPlotWandPos1(), selection.getPlotWandPos2());
 
-		region.setFlag(Flags.CHEST_ACCESS, StateFlag.State.ALLOW);
-		region.setFlag(Flags.CHEST_ACCESS.getRegionGroupFlag(), RegionGroup.MEMBERS);
+		region.setFlag(Flags.CHEST_ACCESS, StateFlag.State.DENY);
+		region.setFlag(Flags.CHEST_ACCESS.getRegionGroupFlag(), RegionGroup.NON_MEMBERS);
 
 		region.setFlag(Flags.PVP, StateFlag.State.ALLOW);
 

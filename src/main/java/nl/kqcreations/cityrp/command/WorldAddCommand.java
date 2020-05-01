@@ -1,6 +1,6 @@
 package nl.kqcreations.cityrp.command;
 
-import nl.kqcreations.cityrp.data.WorldData;
+import nl.kqcreations.cityrp.data.yml_data.WorldData;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.mineacademy.fo.command.SimpleCommand;

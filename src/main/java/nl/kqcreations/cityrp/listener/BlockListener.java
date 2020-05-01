@@ -1,6 +1,6 @@
 package nl.kqcreations.cityrp.listener;
 
-import nl.kqcreations.cityrp.menu.ATMMenu;
+import nl.kqcreations.cityrp.menu.ATM.ATMMenu;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

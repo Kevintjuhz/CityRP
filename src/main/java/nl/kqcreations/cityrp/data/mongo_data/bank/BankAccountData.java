@@ -1,9 +1,10 @@
-package nl.kqcreations.cityrp.data.bank;
+package nl.kqcreations.cityrp.data.mongo_data.bank;
 
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Sorts;
-import nl.kqcreations.cityrp.data.MongoConnector;
-import nl.kqcreations.cityrp.data.bank.transaction.Transaction;
+import nl.kqcreations.cityrp.data.mongo_data.MongoConnector;
+import nl.kqcreations.cityrp.data.mongo_data.SimpleDocumentGenerator;
+import nl.kqcreations.cityrp.data.mongo_data.bank.transaction.Transaction;
 import nl.kqcreations.cityrp.settings.Settings;
 import org.bson.Document;
 import org.mineacademy.fo.Common;
@@ -17,6 +18,8 @@ public class BankAccountData {
 	private static MongoCollection<Document> bankAccountCollection = MongoConnector.getInstance().getCollection("bank-accounts");
 
 	private static Map<Integer, BankAccount> bankAccountMap = new HashMap<>();
+
+	private SimpleDocumentGenerator<BankAccount> documentGenerator = new BankDocumentGenerator();
 
 	/**
 	 * Loads all the bankaccounts and puts them in a bankAccountMap, with the bank-id as the key
@@ -71,15 +74,6 @@ public class BankAccountData {
 	}
 
 	/**
-	 * Create a new bank account.
-	 *
-	 * @return
-	 */
-	public static BankAccount createNewBankAccount() {
-		return createNewBankAccount("");
-	}
-
-	/**
 	 * Create a new bank account with a specific name
 	 *
 	 * @param name
@@ -104,6 +98,9 @@ public class BankAccountData {
 			bankAccount.setName(name);
 
 		bankAccountMap.putIfAbsent(bankAccountId, bankAccount);
+		Common.runLaterAsync(() -> {
+			bankAccountCollection.insertOne(getDocumentFromAccount(bankAccount));
+		});
 
 		return bankAccount;
 	}
@@ -118,9 +115,12 @@ public class BankAccountData {
 	 */
 	public static int createMainPlayerBankAccount(UUID uuid) {
 		final int bankAccountId = getNewId();
-		BankAccount bankAccount = new BankAccount(bankAccountId, uuid);
+		BankAccount bankAccount = new BankAccount(bankAccountId);
+		bankAccount.setOwner(uuid);
 		bankAccount.setMain(true);
 		bankAccount.setBalance(Settings.STARTING_BALANCE);
+		bankAccount.setType(BankAccount.AccountType.PRIVATE_ACCOUNT);
+		bankAccount.setName("Main");
 
 		Document document = getDocumentFromAccount(bankAccount);
 		bankAccountCollection.insertOne(document);
@@ -142,13 +142,21 @@ public class BankAccountData {
 		bankAccount.setName(document.getString("name"));
 		bankAccount.setBalance(document.getDouble("balance"));
 		bankAccount.setFrozen(document.getBoolean("is-frozen", false));
+		bankAccount.setOwner(UUID.fromString(document.getString("owner")));
+
+		String pin = document.getString("pin");
+		if (pin != null && !pin.equals(""))
+			bankAccount.setPin(pin);
 
 		if (document.get("users") != null) {
 			List<Document> users = (List<Document>) document.get("users");
-			Map<UUID, BankAccount.AccessLevel> accessLevelMap = new HashMap<>();
+			Map<UUID, BankAccount.BankUser> accessLevelMap = new HashMap<>();
 
 			for (Document user : users) {
-				accessLevelMap.put(UUID.fromString(user.getString("uuid")), BankAccount.AccessLevel.valueOf(user.getString("access")));
+				accessLevelMap.put(UUID.fromString(user.getString("uuid")),
+						new BankAccount.BankUser(user.getString("name"),
+								UUID.fromString(user.getString("uuid")),
+								BankAccount.AccessLevel.valueOf(user.getString("access"))));
 			}
 
 			bankAccount.setUsers(accessLevelMap);
@@ -160,8 +168,7 @@ public class BankAccountData {
 			for (String transactionId : document.getList("transactions", String.class)) {
 				Transaction transaction = Transaction.fromTransactionId(transactionId);
 
-				if (transaction != null)
-					transactions.add(transaction);
+				transactions.add(transaction);
 			}
 
 			bankAccount.setTransactions(transactions);
@@ -178,10 +185,11 @@ public class BankAccountData {
 	 */
 	private static Document getDocumentFromAccount(BankAccount bankAccount) {
 		List<Document> users = new ArrayList<>();
-		for (UUID uuid : bankAccount.getUsers().keySet()) {
+		for (BankAccount.BankUser bankUser : bankAccount.getUsers().values()) {
 			users.add(new Document()
-					.append("uuid", uuid.toString())
-					.append("access", bankAccount.getUserAccessLevel(uuid).toString())
+					.append("uuid", bankUser.getUuid().toString())
+					.append("access", bankUser.getAccessLevel().toString())
+					.append("name", bankUser.getName())
 			);
 		}
 
@@ -191,13 +199,15 @@ public class BankAccountData {
 		}
 
 		Document document = new Document("account-id", bankAccount.getAccountId())
+				.append("owner", bankAccount.getOwner() != null ? bankAccount.getOwner().toString() : "")
 				.append("is-main", bankAccount.isMain())
 				.append("type", bankAccount.getType().toString())
 				.append("balance", bankAccount.getBalance())
 				.append("users", users)
 				.append("name", bankAccount.getName())
 				.append("is-frozen", bankAccount.isFrozen())
-				.append("transactions", transactions);
+				.append("transactions", transactions)
+				.append("pin", bankAccount.getPin());
 
 		return document;
 	}

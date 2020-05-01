@@ -1,40 +1,37 @@
-package nl.kqcreations.cityrp.data.business;
+package nl.kqcreations.cityrp.data.mongo_data.business;
 
 import lombok.Getter;
 import lombok.Setter;
-import nl.kqcreations.cityrp.data.bank.BankAccount;
+import nl.kqcreations.cityrp.data.mongo_data.bank.BankAccount;
+import org.bukkit.entity.Player;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
 @Getter
+@Setter
 public class Business {
-	@Setter
 	private String name;
-	@Setter
 	private String plotName = null;
-	@Setter
 	private BankAccount bankAccount = null;
-	@Setter
 	private UUID owner;
-	@Setter
-	private BusinessType businessType;
+	private BusinessCategory businessCategory;
 
-	private Map<UUID, Worker> workers = new HashMap<>();
+	private final Map<UUID, Worker> workers = new HashMap<>();
 
-	public Business(String name, UUID owner, BusinessType businessType) {
+	public Business(String name, UUID owner, BusinessCategory businessCategory) {
 		this.name = name;
 		this.owner = owner;
-		this.businessType = businessType;
+		this.businessCategory = businessCategory;
 	}
 
-	public void addWorker(UUID worker) {
-		workers.putIfAbsent(worker, new Worker(worker));
+	public void addWorker(Player worker) {
+		workers.putIfAbsent(worker.getUniqueId(), new Worker(worker));
 	}
 
-	public void addWorker(UUID worker, JobFunction jobFunction) {
-		workers.putIfAbsent(worker, new Worker(worker, jobFunction));
+	public void addWorker(Player worker, JobFunction jobFunction) {
+		workers.putIfAbsent(worker.getUniqueId(), new Worker(worker, jobFunction));
 	}
 
 	public void removeWorker(UUID worker) {
@@ -49,6 +46,7 @@ public class Business {
 	public class Worker {
 
 		private UUID uuid;
+		private String name;
 
 		@Setter
 		private JobFunction function;
@@ -56,13 +54,15 @@ public class Business {
 		@Setter
 		private String customTitle = null;
 
-		public Worker(UUID uuid) {
-			this.uuid = uuid;
+		public Worker(Player worker) {
+			this.uuid = worker.getUniqueId();
+			this.name = worker.getName();
 			this.function = JobFunction.EMPLOYEE;
 		}
 
-		public Worker(UUID uuid, JobFunction function) {
-			this.uuid = uuid;
+		public Worker(Player worker, JobFunction function) {
+			this.uuid = worker.getUniqueId();
+			this.name = worker.getName();
 			this.function = function;
 		}
 
@@ -110,7 +110,7 @@ public class Business {
 		}
 	}
 
-	public enum BusinessType {
+	public enum BusinessCategory {
 		FOOD_SHOP("Food Shop"),
 		CLOTHING_SHOP("Clothing Shop"),
 		ARCHITECT("Architect"),
@@ -118,7 +118,15 @@ public class Business {
 		CASINO("Casino"),
 		ENTERTAINMENT("Entertainment");
 
-		BusinessType(String label) {
+		BusinessCategory(String label) {
+		}
+	}
+
+	public enum BusinessType {
+		PRODUCT("Product"),
+		SERVICE("Service");
+
+		BusinessType(String product) {
 		}
 	}
 }

@@ -1,7 +1,7 @@
 package nl.kqcreations.cityrp;
 
-import nl.kqcreations.cityrp.data.CityData;
-import nl.kqcreations.cityrp.data.WorldData;
+import nl.kqcreations.cityrp.data.yml_data.CityData;
+import nl.kqcreations.cityrp.data.yml_data.WorldData;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;

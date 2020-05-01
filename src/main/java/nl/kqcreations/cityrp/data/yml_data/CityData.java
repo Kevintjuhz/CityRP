@@ -1,4 +1,4 @@
-package nl.kqcreations.cityrp.data;
+package nl.kqcreations.cityrp.data.yml_data;
 
 import lombok.Getter;
 import nl.kqcreations.cityrp.settings.Settings;

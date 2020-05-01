@@ -1,10 +1,10 @@
-package nl.kqcreations.cityrp.data;
+package nl.kqcreations.cityrp.data.mongo_data;
 
 import com.mongodb.client.MongoCollection;
 import lombok.Getter;
 import lombok.Setter;
-import nl.kqcreations.cityrp.data.bank.BankAccount;
-import nl.kqcreations.cityrp.data.bank.BankAccountData;
+import nl.kqcreations.cityrp.data.mongo_data.bank.BankAccount;
+import nl.kqcreations.cityrp.data.mongo_data.bank.BankAccountData;
 import nl.kqcreations.cityrp.settings.Settings;
 import org.bson.Document;
 
@@ -16,7 +16,7 @@ import static com.mongodb.client.model.Updates.set;
 
 @Getter
 @Setter
-public final class PlayerData {
+public final class PlayerData extends MongoData {
 
 	private static MongoCollection<Document> players = MongoConnector.getInstance().getCollection("players");
 
@@ -27,6 +27,10 @@ public final class PlayerData {
 	private String job;
 	private String cityColor;
 	private List<BankAccount> bankAccounts = new ArrayList<>();
+
+	public PlayerData() {
+		super("players");
+	}
 
 	public boolean addBankAccount(BankAccount bankAccount) {
 		for (BankAccount bankAccount1 : bankAccounts) {

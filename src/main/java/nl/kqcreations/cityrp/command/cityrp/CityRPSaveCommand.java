@@ -1,6 +1,6 @@
 package nl.kqcreations.cityrp.command.cityrp;
 
-import nl.kqcreations.cityrp.data.bank.BankAccountData;
+import nl.kqcreations.cityrp.data.mongo_data.bank.BankAccountData;
 import org.mineacademy.fo.command.SimpleCommandGroup;
 import org.mineacademy.fo.command.SimpleSubCommand;
 

@@ -3,7 +3,9 @@ package nl.kqcreations.cityrp.data;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import nl.kqcreations.cityrp.data.bank.BankAccountData;
+import nl.kqcreations.cityrp.data.mongo_data.bank.BankAccountData;
+import nl.kqcreations.cityrp.data.yml_data.CityData;
+import nl.kqcreations.cityrp.data.yml_data.WorldData;
 import org.mineacademy.fo.Common;
 import org.mineacademy.fo.settings.YamlConfig;
 

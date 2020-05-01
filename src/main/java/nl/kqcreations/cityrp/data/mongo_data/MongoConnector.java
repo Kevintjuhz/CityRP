@@ -1,4 +1,4 @@
-package nl.kqcreations.cityrp.data;
+package nl.kqcreations.cityrp.data.mongo_data;
 
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
